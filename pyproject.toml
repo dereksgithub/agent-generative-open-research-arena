@@ -1,0 +1,35 @@
+[project]
+name = "agora"
+version = "0.1.0"
+description = "Agent-Generative Open Research Arena"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "httpx>=0.27",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.backends"
+
+[tool.hatch.build.targets.wheel]
+packages = ["engine/agora"]
+
+[tool.ruff]
+src = ["engine"]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["engine/tests"]
+asyncio_mode = "auto"
