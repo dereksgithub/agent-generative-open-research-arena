@@ -1,0 +1,295 @@
+# AGORA Example Scenario: Vaccine Uptake
+# A neighbourhood with 8 agents deciding whether to get vaccinated under
+# varying trust levels and a public health campaign.
+
+id: vaccine_uptake_v1
+name: vaccine_uptake
+description: >
+  Eight residents of a neighbourhood decide whether to visit the local health
+  clinic for a flu vaccination over a 12-day period. A public health awareness
+  campaign launches on day 4, reducing hesitancy. Observe how trust, income,
+  and social influence affect uptake timing.
+domain: public_health
+version: "1"
+
+simulation:
+  ticks: 12
+  tick_unit: day
+  seed: 7
+
+locations:
+  - id: home_east
+    name: East Neighbourhood
+    type: residential
+    x: 0.0
+    y: 1.0
+    resources:
+      households: 200
+
+  - id: home_west
+    name: West Neighbourhood
+    type: residential
+    x: 0.0
+    y: -1.0
+    resources:
+      households: 150
+
+  - id: health_clinic
+    name: Community Health Clinic
+    type: healthcare
+    x: 2.0
+    y: 0.0
+    capacity: 50
+    resources:
+      vaccine_doses: 500
+      staff: 8
+
+  - id: community_centre
+    name: Community Centre
+    type: public
+    x: 1.0
+    y: 0.0
+    resources:
+      seating: 100
+
+routes:
+  - from: home_east
+    to: health_clinic
+    mode: walk
+    travel_time_minutes: 20
+
+  - from: home_east
+    to: health_clinic
+    mode: transit
+    travel_time_minutes: 10
+
+  - from: home_west
+    to: health_clinic
+    mode: walk
+    travel_time_minutes: 30
+
+  - from: home_west
+    to: health_clinic
+    mode: transit
+    travel_time_minutes: 15
+
+  - from: health_clinic
+    to: home_east
+    mode: walk
+    travel_time_minutes: 20
+
+  - from: health_clinic
+    to: home_east
+    mode: transit
+    travel_time_minutes: 10
+
+  - from: health_clinic
+    to: home_west
+    mode: walk
+    travel_time_minutes: 30
+
+  - from: health_clinic
+    to: home_west
+    mode: transit
+    travel_time_minutes: 15
+
+  - from: home_east
+    to: community_centre
+    mode: walk
+    travel_time_minutes: 12
+
+  - from: home_west
+    to: community_centre
+    mode: walk
+    travel_time_minutes: 15
+
+  - from: community_centre
+    to: home_east
+    mode: walk
+    travel_time_minutes: 12
+
+  - from: community_centre
+    to: home_west
+    mode: walk
+    travel_time_minutes: 15
+
+agents:
+  - id: maria
+    name: Maria
+    role: parent
+    traits: [cautious, community-minded]
+    home_location: home_east
+    work_location: health_clinic
+    preferred_mode: walk
+    age: 38
+    income_bracket: medium
+    household_size: 4
+    values: [family-safety, trust-in-science]
+    backstory: >
+      Maria is a primary school teaching assistant. She is generally pro-vaccine
+      but wants to wait until a few neighbours have gone first.
+    schedule:
+      "3": "travel_to:health_clinic"
+      "6": "travel_to:home_east"
+
+  - id: james
+    name: James
+    role: worker
+    traits: [sceptical, independent]
+    home_location: home_west
+    work_location: health_clinic
+    preferred_mode: transit
+    age: 52
+    income_bracket: low
+    values: [autonomy, distrust-of-institutions]
+    backstory: >
+      James is a warehouse worker who distrusts government health messaging
+      after past experiences. He is unlikely to act on the campaign alone.
+    schedule:
+      "8": "travel_to:health_clinic"
+      "10": "travel_to:home_west"
+
+  - id: priya
+    name: Priya
+    role: student
+    traits: [informed, social-media-active]
+    home_location: home_east
+    work_location: health_clinic
+    preferred_mode: walk
+    age: 22
+    income_bracket: low
+    values: [peer-approval, convenience]
+    backstory: >
+      Priya is a nursing student who understands the science but is busy with
+      coursework. She will go once it is convenient.
+    schedule:
+      "2": "travel_to:health_clinic"
+      "3": "travel_to:home_east"
+
+  - id: george
+    name: George
+    role: retiree
+    traits: [trusting, routine-oriented]
+    home_location: home_east
+    work_location: health_clinic
+    preferred_mode: walk
+    age: 74
+    income_bracket: medium
+    values: [health, routine, community]
+    backstory: >
+      George is a retired postal worker who gets his flu jab every year
+      without fail. He books early.
+    schedule:
+      "1": "travel_to:health_clinic"
+      "2": "travel_to:home_east"
+
+  - id: fatima
+    name: Fatima
+    role: parent
+    traits: [protective, cautious]
+    home_location: home_west
+    work_location: health_clinic
+    preferred_mode: transit
+    age: 33
+    income_bracket: low
+    household_size: 5
+    values: [child-welfare, community-trust]
+    backstory: >
+      Fatima is a stay-at-home mother who is protective of her children.
+      She will consider vaccination once she hears positive experiences from
+      neighbours.
+    schedule:
+      "6": "travel_to:health_clinic"
+      "8": "travel_to:home_west"
+
+  - id: tom
+    name: Tom
+    role: worker
+    traits: [busy, pragmatic]
+    home_location: home_east
+    work_location: health_clinic
+    preferred_mode: transit
+    age: 41
+    income_bracket: high
+    values: [efficiency, minimal-disruption]
+    backstory: >
+      Tom is a self-employed consultant who will only get vaccinated if it
+      takes minimal time out of his day.
+    schedule:
+      "5": "travel_to:health_clinic"
+      "6": "travel_to:home_east"
+
+  - id: lin
+    name: Lin
+    role: carer
+    traits: [empathetic, risk-aware]
+    home_location: home_west
+    work_location: health_clinic
+    preferred_mode: walk
+    age: 29
+    income_bracket: medium
+    values: [duty-of-care, evidence-based]
+    backstory: >
+      Lin is a home carer who looks after elderly clients. She feels a
+      professional duty to get vaccinated and acts early.
+    schedule:
+      "1": "travel_to:health_clinic"
+      "3": "travel_to:home_west"
+
+  - id: derek
+    name: Derek
+    role: worker
+    traits: [hesitant, peer-influenced]
+    home_location: home_west
+    work_location: health_clinic
+    preferred_mode: transit
+    age: 46
+    income_bracket: medium
+    values: [normality, peer-conformity]
+    backstory: >
+      Derek works in retail and has no strong opinion on vaccination.
+      He will follow the majority of his colleagues.
+    schedule:
+      "7": "travel_to:health_clinic"
+      "9": "travel_to:home_west"
+
+interventions:
+  - tick: 4
+    name: public_health_campaign
+    description: >
+      A targeted public health awareness campaign launches with leaflets,
+      social media adverts, and a community information session. This
+      reduces perceived travel cost to the clinic.
+    effects:
+      walk_cost_multiplier: 0.7
+      transit_cost_multiplier: 0.8
+
+kpis:
+  - id: clinic_visits
+    name: Clinic Visit Count
+    description: Number of agents traveling to the health clinic per day
+    metric: count
+    source: decisions
+    filter:
+      action: travel
+      target: health_clinic
+    unit: visits
+
+  - id: walk_share
+    name: Walking Mode Share
+    description: Proportion of clinic trips made on foot
+    metric: ratio
+    source: decisions
+    filter:
+      action: travel
+      mode: walk
+    unit: "%"
+
+  - id: parent_count
+    name: Parent Agent Count
+    description: Number of parent-role agents in the simulation
+    metric: count
+    source: agent_states
+    filter:
+      role: parent
+    unit: agents

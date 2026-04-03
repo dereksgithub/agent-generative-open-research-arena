@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AGORA — Run Viewer</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>AGORA <span class="subtitle">Run Viewer</span></h1>
+      <p class="header-note">Visualization shell over file-backed AGORA runs.</p>
+    </div>
+    <div id="run-info"></div>
+  </header>
+
+  <div id="app">
+    <aside id="sidebar">
+      <h2>Runs</h2>
+      <div id="run-controls">
+        <button id="btn-refresh" title="Refresh run list">Refresh</button>
+        <button id="btn-launch" title="Launch new run">New Run</button>
+      </div>
+      <div id="launch-panel" class="hidden">
+        <h3>Launch New Run</h3>
+        <p class="launch-note">Runs launched here use the heuristic engine path.</p>
+        <label>Scenario:
+          <select id="launch-scenario"></select>
+        </label>
+        <label>Seed:
+          <input type="number" id="launch-seed" value="42" min="0">
+        </label>
+        <button id="btn-launch-go">Run</button>
+        <div id="launch-status"></div>
+      </div>
+      <ul id="run-list"></ul>
+    </aside>
+
+    <main id="content">
+      <div id="placeholder">
+        <p>Select a run from the sidebar to inspect it.</p>
+      </div>
+
+      <div id="panels" class="hidden">
+        <nav id="tabs">
+          <button class="tab active" data-tab="timeline">Timeline</button>
+          <button class="tab" data-tab="agents">Agents</button>
+          <button class="tab" data-tab="decisions">Decisions</button>
+          <button class="tab" data-tab="kpis">KPIs</button>
+          <button class="tab" data-tab="export">Export</button>
+        </nav>
+
+        <section id="tab-timeline" class="tab-panel active">
+          <h2>Tick Timeline</h2>
+          <div id="timeline-chart"></div>
+          <div id="timeline-legend"></div>
+          <div id="intervention-markers"></div>
+        </section>
+
+        <section id="tab-agents" class="tab-panel">
+          <h2>Agent States</h2>
+          <div id="agent-selector"></div>
+          <div id="agent-detail"></div>
+          <table id="agent-states-table">
+            <thead><tr></tr></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section id="tab-decisions" class="tab-panel">
+          <h2>Decision Traces</h2>
+          <div id="decision-filters">
+            <label>Agent: <select id="filter-agent"><option value="">All</option></select></label>
+            <label>Tick: <select id="filter-tick"><option value="">All</option></select></label>
+            <label>Action: <select id="filter-action"><option value="">All</option></select></label>
+          </div>
+          <div id="decision-list"></div>
+        </section>
+
+        <section id="tab-kpis" class="tab-panel">
+          <h2>Key Performance Indicators</h2>
+          <div id="kpi-cards"></div>
+          <div id="kpi-chart"></div>
+        </section>
+
+        <section id="tab-export" class="tab-panel">
+          <h2>Export Run Data</h2>
+          <p>Download the raw output files from this run.</p>
+          <div id="export-links"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

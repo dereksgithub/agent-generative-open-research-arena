@@ -94,10 +94,10 @@ for _name, _cfg in PROVIDERS.items():
 
 
 def resolve_provider(name: str) -> ProviderConfig:
-    """Resolve a provider name or alias to its config. Raises KeyError if unknown."""
+    """Resolve a provider name or alias to its config."""
     canonical = ALIAS_MAP.get(name.lower())
     if canonical is None:
-        raise KeyError(
+        raise ValueError(
             f"Unknown provider '{name}'. "
             f"Available: {', '.join(sorted(ALIAS_MAP.keys()))}"
         )

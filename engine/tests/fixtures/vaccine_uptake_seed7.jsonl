@@ -1,0 +1,96 @@
+{"tick": 0, "agent_id": "maria", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "james", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "priya", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "george", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "fatima", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "tom", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "lin", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "maria", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "james", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "priya", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "george", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions.", "metadata": {"mode": "transit"}}
+{"tick": 1, "agent_id": "fatima", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "tom", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "lin", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions.", "metadata": {"mode": "transit"}}
+{"tick": 1, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "maria", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "james", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "priya", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions.", "metadata": {"mode": "transit"}}
+{"tick": 2, "agent_id": "george", "action": "travel", "target": "home_east", "reasoning": "I want to reach home_east. Choosing transit based on my preferences and current conditions.", "metadata": {"mode": "transit"}}
+{"tick": 2, "agent_id": "fatima", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "tom", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "lin", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "maria", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions.", "metadata": {"mode": "transit"}}
+{"tick": 3, "agent_id": "james", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "priya", "action": "travel", "target": "home_east", "reasoning": "I want to reach home_east. Choosing transit based on my preferences and current conditions.", "metadata": {"mode": "transit"}}
+{"tick": 3, "agent_id": "george", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "fatima", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "tom", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "lin", "action": "travel", "target": "home_west", "reasoning": "I want to reach home_west. Choosing transit based on my preferences and current conditions.", "metadata": {"mode": "transit"}}
+{"tick": 3, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "maria", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "james", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "priya", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "george", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "fatima", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "tom", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "lin", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "maria", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "james", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "priya", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "george", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "fatima", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "tom", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 5, "agent_id": "lin", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "maria", "action": "travel", "target": "home_east", "reasoning": "I want to reach home_east. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 6, "agent_id": "james", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "priya", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "george", "action": "stay", "target": "home_east", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "fatima", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 6, "agent_id": "tom", "action": "travel", "target": "home_east", "reasoning": "I want to reach home_east. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 6, "agent_id": "lin", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 7, "agent_id": "maria", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "james", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "priya", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "george", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "fatima", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "tom", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "lin", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "derek", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 8, "agent_id": "maria", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "walk"}}
+{"tick": 8, "agent_id": "james", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 8, "agent_id": "priya", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "walk"}}
+{"tick": 8, "agent_id": "george", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "walk"}}
+{"tick": 8, "agent_id": "fatima", "action": "travel", "target": "home_west", "reasoning": "I want to reach home_west. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 8, "agent_id": "tom", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 8, "agent_id": "lin", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "walk"}}
+{"tick": 8, "agent_id": "derek", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 9, "agent_id": "maria", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "walk"}}
+{"tick": 9, "agent_id": "james", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 9, "agent_id": "priya", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "walk"}}
+{"tick": 9, "agent_id": "george", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "walk"}}
+{"tick": 9, "agent_id": "fatima", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 9, "agent_id": "tom", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 9, "agent_id": "lin", "action": "travel", "target": "health_clinic", "reasoning": "I want to reach health_clinic. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "walk"}}
+{"tick": 9, "agent_id": "derek", "action": "travel", "target": "home_west", "reasoning": "I want to reach home_west. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 10, "agent_id": "maria", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "james", "action": "travel", "target": "home_west", "reasoning": "I want to reach home_west. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'walk': 0.7, 'transit': 0.8}.", "metadata": {"mode": "transit"}}
+{"tick": 10, "agent_id": "priya", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "george", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "fatima", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "tom", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "lin", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "maria", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "james", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "priya", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "george", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "fatima", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "tom", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "lin", "action": "stay", "target": "health_clinic", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "derek", "action": "stay", "target": "home_west", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}

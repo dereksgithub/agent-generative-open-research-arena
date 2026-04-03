@@ -9,171 +9,136 @@
 </p>
  
 <p align="center">
-  <a href="#quickstart">Quickstart</a> · <a href="#paper">Paper</a> · <a href="https://agora-sim.org/demo">Live Demo</a> · <a href="https://agora-sim.org/docs">Docs</a> · <a href="#community">Community</a>
-</p>
- 
-<p align="center">
   <img src="https://img.shields.io/badge/license-Apache_2.0-blue" alt="License" />
-  <img src="https://img.shields.io/badge/engine-Three.js-black" alt="Three.js" />
+  <img src="https://img.shields.io/badge/engine-Python-blue" alt="Python" />
   <img src="https://img.shields.io/badge/agents-LLM--powered-orange" alt="LLM Agents" />
-  <img src="https://img.shields.io/badge/status-alpha-yellow" alt="Status" />
+  <img src="https://img.shields.io/badge/status-pre--alpha-red" alt="Status" />
 </p>
  
 ---
  
-**AGORA** is an open-source, browser-native simulation framework where LLM-driven cognitive agents inhabit rich spatial environments — and _reason_ their way through them.
- 
-Unlike classical agent-based models where agents optimise a utility function over fixed choice dimensions, AGORA agents perceive, deliberate, and decide through language-grounded cognition. They hold memory, exhibit bounded rationality, respond to narrative policy framing, and — critically — can _explain_ why they made a choice.
- 
-The result is a general-purpose socio-spatial simulation engine that is **visual by default** and **reproducible by design**, making even fully synthesised populations suitable for serious, publishable research.
- 
-## Why AGORA?
- 
-For two decades, frameworks like [MATSim](https://matsim.org), [SUMO](https://eclipse.dev/sumo/), and [NetLogo](https://ccl.northwestern.edu/netlogo/) have powered agent-based research across transport, public health, urban planning, and beyond. They remain excellent tools. But their agents are mathematical constructs: utility maximisers navigating predefined choice sets. When a novel policy is introduced — a congestion charge, a pandemic lockdown, a platform economy disruption — these agents can only respond within the behavioural envelope their modellers hard-coded.
- 
-AGORA takes a different approach:
- 
-| | Classical ABM (MATSim, SUMO, NetLogo) | AGORA |
-|---|---|---|
-| **Agent cognition** | Utility functions, logit models | LLM-grounded reasoning with memory |
-| **Behavioural scope** | Pre-specified choice dimensions | Open-ended: agents reason about _novel_ situations |
-| **Scenario definition** | XML/config files, code extensions | Natural language + structured YAML |
-| **Visualisation** | Post-hoc analysis, separate tools | Real-time 3D (Three.js), browser-native |
-| **Accessibility** | Java/Python install, steep learning curve | Open a URL. Run a simulation. |
-| **Qualitative insight** | Aggregate KPIs only | Agent-level decision narratives exportable as data |
-| **Reproducibility** | Seed-based, deterministic | Seed-based + LLM temperature control + decision logs |
-| **Extensibility** | Language-specific plugins (Java/Python) | Scenario packs (YAML + prompt templates) |
- 
-AGORA does not replace these tools — it extends the frontier of what agent-based simulation can study.
- 
-## Application Domains
- 
-AGORA is domain-agnostic by design. The same engine supports:
- 
-🚗 **Transport & Mobility** — Mode choice, EV charging behaviour, congestion pricing response, demand-responsive transit. Import MATSim network and population files directly.
- 
-🏙️ **Urban Planning & Land Use** — High street economics, housing market dynamics, gentrification cascades, pedestrianisation impact studies.
- 
-🏥 **Public Health & Epidemiology** — Pandemic response under heterogeneous compliance, vaccine allocation equity, health-seeking behaviour in spatial contexts.
- 
-⚡ **Energy & Infrastructure** — Charging network placement, grid demand simulation, distributed energy resource adoption under policy incentives.
- 
-🛒 **Consumer Behaviour & Market Design** — Platform marketplace dynamics, surge pricing response, retail footfall under spatial interventions.
- 
-🚨 **Emergency Management** — Evacuation modelling with cognitively diverse agents, disaster communication effectiveness, shelter allocation under uncertainty.
- 
-📊 **Computational Social Science** — Opinion dynamics, institutional trust erosion, policy preference formation, inter-group cooperation experiments.
- 
-## Architecture
- 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Browser / Three.js Frontend                  │
-│         Real-time 3D visualisation · Multiplayer interaction    │
-├─────────────────────────────────────────────────────────────────┤
-│                    Multiplayer & Interactive Layer               │
-│      Human-in-the-loop · Stakeholder workshops · Gaming mode   │
-├─────────────────────────────────────────────────────────────────┤
-│                    Scenario & Policy Engine                      │
-│        YAML/NL scenario definitions · Timed interventions       │
-├──────────────────────┬──────────────────────────────────────────┤
-│  Agent Cognition     │        Environment Simulation            │
-│  Engine              │                                          │
-│                      │  Transport network · Land use            │
-│  Persona + Memory    │  Energy grid · Economic activity         │
-│  Perceive → Reason   │  Social network graph                   │
-│  → Decide → Act      │                                          │
-│                      │  Modular: swap city datasets,            │
-│  Tiered inference:   │  import MATSim .xml, OSM, GTFS          │
-│  Local SLM (95%)     │                                          │
-│  Frontier LLM (5%)   │                                          │
-├──────────────────────┴──────────────────────────────────────────┤
-│                 Observation & Analytics Layer                    │
-│    Real-time dashboards · Decision narrative logs               │
-│    Configurable KPIs · Exportable datasets (CSV, Parquet)       │
-└─────────────────────────────────────────────────────────────────┘
-```
- 
+**AGORA** is an open-source simulation framework where LLM-driven cognitive agents inhabit structured environments and reason their way through them.
+
+Unlike classical agent-based models where agents optimise a utility function over fixed choice dimensions, AGORA agents perceive, deliberate, and decide through language-grounded cognition. They hold memory, respond to policy interventions, and can explain why they made a choice.
+
+## Current Status
+
+AGORA is in **early development**. What works today:
+
+- **Local CLI** — `agora run <scenario.yaml>` executes a scenario and writes structured outputs.
+- **YAML scenario format** — define locations, routes, agents, and policy interventions.
+- **Heuristic agent mode** — agents follow a perceive-deliberate-decide-act lifecycle with deterministic heuristic decisions.
+- **Reproducible runs** — same scenario + same seed + same mode produces identical run artifacts in heuristic mode.
+- **Structured outputs** — JSONL decision traces, JSONL event logs, CSV aggregates, config snapshots, and metadata.
+- **Research exports** — per-tick agent states, narratives, agent summaries, and KPI datasets for downstream analysis.
+- **LLM-backed agent mode** — provider-routed agent reasoning with structured prompts, audit logs, graceful heuristic fallback, and optional prompt caching.
+- **Local run viewer** — `agora viz` opens a browser-based visualization shell for launching example runs, inspecting outputs, and downloading artifacts.
+
+### What is NOT implemented yet
+
+- Rich 3D spatial visualization / map-based rendering
+- Hosted demo
+- MATSim import
+- Multiplayer interaction
+- Pre-built scenario packs beyond the single example
+
 ## Quickstart
- 
-No install required. Clone and run:
- 
+
+Requires Python 3.11+.
+
 ```bash
 git clone https://github.com/agora-sim/agora.git
 cd agora
-npm install
-npm run dev
+
+# Install with uv (recommended)
+uv venv .venv && source .venv/bin/activate
+uv pip install -e ".[dev]"
+
+# Or with pip
+python -m pip install -e ".[dev]"
 ```
- 
-Open `http://localhost:3000` — a small-town transport scenario loads in your browser with 200 cognitive agents. Inject a policy shock from the control panel and watch behaviour shift in real time.
- 
-**Or try the hosted demo →** [agora-sim.org/demo](https://agora-sim.org/demo)
- 
-## For MATSim Users
- 
-AGORA can ingest MATSim network and population XML files:
- 
+
+Run the example scenario:
+
 ```bash
-agora import --matsim-network ./berlin-network.xml \
-             --matsim-plans ./berlin-plans.xml \
-             --output ./scenarios/berlin/
+agora run scenarios/examples/morning_commute.yaml --seed 42 --no-llm
 ```
- 
-Your existing city models become AGORA scenarios. Agent plans are converted into persona definitions with cognitive capabilities layered on top.
- 
-## Reproducibility
- 
-Synthesised data and LLM-driven agents raise valid concerns about reproducibility. AGORA addresses this head-on:
- 
-- **Deterministic seeding** — Every simulation run is seeded. Same seed, same agent order, same environment state.
-- **Temperature-controlled inference** — LLM temperature is a first-class simulation parameter, logged and versioned.
-- **Full decision audit trail** — Every agent decision is logged with its reasoning chain, input context, and selected action. These logs are exportable as structured data for qualitative and quantitative analysis.
-- **Cognitive fidelity dial** — Researchers choose where on the cost–realism spectrum to operate. At minimum fidelity, agents use cached heuristic responses (fast, cheap, reproducible). At maximum fidelity, every decision is a live LLM call (rich, expensive, stochastic but logged).
- 
-This means AGORA outputs are not black boxes — they are auditable, publishable, and debatable.
- 
-## Roadmap
- 
-- [x] Core agent cognition loop (perceive → reason → decide → act)
-- [x] Three.js spatial visualisation engine
-- [x] YAML scenario definition format
-- [ ] MATSim network/plans importer
-- [ ] Tiered inference (local SLM + frontier LLM routing)
-- [ ] Multiplayer interaction layer
-- [ ] Pre-built scenario packs (transport, public health, housing)
-- [ ] Decision narrative → structured dataset exporter
-- [ ] Hosted cloud simulation platform
- 
-## Citing AGORA
- 
-If you use AGORA in your research, please cite:
- 
-```bibtex
-@software{agora2026,
-  title     = {AGORA: Agent-Generative Open Research Arena},
-  author    = {[Author]},
-  year      = {2026},
-  url       = {https://github.com/agora-sim/agora},
-  note      = {Open-source LLM-driven cognitive agent simulation framework}
-}
+
+This simulates 5 agents commuting in a small town over 24 ticks. A congestion charge is introduced at tick 7, and you can observe agents switching transport modes in the output.
+
+A second example scenario is included at `scenarios/examples/vaccine_uptake.yaml` for a public-health workflow.
+
+Open the local run viewer:
+
+```bash
+agora viz
 ```
- 
-A foundational paper is in preparation. Details will be posted here upon submission.
- 
-## Community
- 
-- **Discussions** — [GitHub Discussions](https://github.com/agora-sim/agora/discussions) for questions, ideas, and scenario sharing
-- **Discord** — Real-time chat for developers and researchers _(link coming soon)_
-- **Mailing list** — Low-frequency announcements for releases and events
- 
-We welcome contributions: new scenario packs, domain-specific KPI modules, visualisation enhancements, and inference optimisations. See [CONTRIBUTING.md](CONTRIBUTING.md).
- 
+
+The supported Phase 5 workflow is:
+
+1. Run `agora viz`.
+2. Launch an example scenario from the sidebar or inspect an existing run in `runs/`.
+3. Review the timeline, agent states, decisions, KPIs, and export files in the browser.
+
+Outputs are written to `runs/<scenario-name>/<timestamp>/`:
+
+```
+runs/morning_commute/20260402_182302/
+  scenario.yaml      # copy of input scenario
+  config.json        # resolved config + seed + version
+  decisions.jsonl    # every agent decision with reasoning
+  events.jsonl       # structured lifecycle and intervention events
+  agent_states.jsonl # per-tick agent state snapshots
+  narratives.jsonl   # qualitative reasoning records
+  agent_summary.csv  # one row per agent with aggregate behavior
+  kpis.json          # evaluated scenario KPIs
+  aggregate.csv      # per-tick summary stats
+  metadata.json      # deterministic run metadata
+```
+
+Example downstream analysis:
+
+```bash
+python scripts/analyze_run.py runs/morning_commute/20260402_182302/
+```
+
+## Architecture
+
+```
+engine/agora/
+  cli.py              # CLI entrypoint (agora run / agora viz)
+  agents/             # Agent model: persona, memory, perceive/deliberate/decide/act
+  scenarios/          # Pydantic schema, YAML loader, validation
+  simulation/         # Tick loop engine, world state, run orchestrator
+  llm/                # Multi-provider async LLM client
+  cognition/          # Prompt contract and LLM decision parsing
+  export/             # Structured dataset exports
+  viz/                # Local viewer server and browser API
+
+scenarios/examples/   # Example scenario YAML files
+viz/src/              # Browser viewer source served by `agora viz`
+```
+
+## CLI Reference
+
+```bash
+agora run <scenario-path>    # Run a scenario
+  --seed INT                 # Random seed for reproducibility
+  --output-dir PATH          # Custom output directory
+  --no-llm                   # Use heuristic decisions (no API calls)
+
+agora viz                    # Launch the local run viewer
+  --port INT                 # Viewer port (default: 8080)
+  --runs-dir PATH            # Run output root to browse
+  --no-browser               # Start server without auto-opening a browser
+```
+
+## Vision
+
+AGORA aims to become a general-purpose socio-spatial simulation engine where LLM-powered agents exhibit bounded rationality, respond to narrative policy framing, and produce auditable decision traces suitable for publishable research. See [plans/](plans/) for the production roadmap.
+
+Target domains include transport and mobility, urban planning, public health, energy systems, and computational social science.
+
 ## License
- 
-Apache 2.0 — Use it, extend it, publish with it. See [LICENSE](LICENSE).
- 
----
- 
-<p align="center">
-  <em>AGORA: Simulation where agents think, not just optimise.</em>
-</p>
+
+Apache 2.0 — See [LICENSE](LICENSE).

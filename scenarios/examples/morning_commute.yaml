@@ -1,0 +1,220 @@
+# AGORA Example Scenario: Morning Commute
+# A small town with 5 agents navigating a commute under a congestion charge.
+
+id: morning_commute_v1
+name: morning_commute
+description: >
+  Five residents of a small town commute from suburbs to the town centre.
+  At tick 7 a congestion charge is introduced, making driving more expensive.
+  Observe how agents adapt their mode choice.
+domain: transport
+version: "1"
+
+simulation:
+  ticks: 24
+  tick_unit: hour
+  seed: 42
+
+locations:
+  - id: suburbs_north
+    name: North Suburbs
+    type: residential
+    x: 0.0
+    y: 2.0
+    resources:
+      parking_spaces: 120
+      households: 300
+
+  - id: suburbs_south
+    name: South Suburbs
+    type: residential
+    x: 0.0
+    y: -2.0
+    resources:
+      parking_spaces: 90
+      households: 240
+
+  - id: town_centre
+    name: Town Centre
+    type: commercial
+    x: 2.0
+    y: 0.0
+    resources:
+      jobs: 500
+      retail_units: 80
+
+  - id: transit_hub
+    name: Transit Hub
+    type: transit_stop
+    x: 1.0
+    y: 0.0
+    resources:
+      platform_capacity: 250
+
+routes:
+  - from: suburbs_north
+    to: town_centre
+    mode: drive
+    travel_time_minutes: 15
+
+  - from: suburbs_north
+    to: town_centre
+    mode: transit
+    travel_time_minutes: 25
+
+  - from: suburbs_north
+    to: town_centre
+    mode: walk
+    travel_time_minutes: 60
+
+  - from: suburbs_south
+    to: town_centre
+    mode: drive
+    travel_time_minutes: 20
+
+  - from: suburbs_south
+    to: town_centre
+    mode: transit
+    travel_time_minutes: 30
+
+  - from: suburbs_south
+    to: town_centre
+    mode: walk
+    travel_time_minutes: 55
+
+  - from: town_centre
+    to: suburbs_north
+    mode: drive
+    travel_time_minutes: 15
+
+  - from: town_centre
+    to: suburbs_north
+    mode: transit
+    travel_time_minutes: 25
+
+  - from: town_centre
+    to: suburbs_south
+    mode: drive
+    travel_time_minutes: 20
+
+  - from: town_centre
+    to: suburbs_south
+    mode: transit
+    travel_time_minutes: 30
+
+agents:
+  - id: alice
+    name: Alice
+    role: commuter
+    traits: [punctual, cost-sensitive]
+    home_location: suburbs_north
+    work_location: town_centre
+    preferred_mode: drive
+    age: 34
+    income_bracket: medium
+    household_size: 3
+    values: [convenience, reliability]
+    backstory: >
+      Alice is a project manager who drops her child at school before heading
+      to the office. She values punctuality above all and drives because transit
+      connections from the north are infrequent.
+
+  - id: bob
+    name: Bob
+    role: commuter
+    traits: [eco-conscious, flexible]
+    home_location: suburbs_north
+    work_location: town_centre
+    preferred_mode: transit
+    age: 28
+    income_bracket: medium
+    values: [sustainability, community]
+    backstory: >
+      Bob works in a co-working space downtown. He deliberately chose transit
+      to reduce his carbon footprint and enjoys reading during his commute.
+
+  - id: carol
+    name: Carol
+    role: commuter
+    traits: [time-sensitive, habitual]
+    home_location: suburbs_south
+    work_location: town_centre
+    preferred_mode: drive
+    age: 45
+    income_bracket: high
+    household_size: 4
+    values: [efficiency, status]
+    backstory: >
+      Carol is a senior solicitor who bills by the hour. Every minute saved
+      commuting is revenue gained, so she drives despite living close to a
+      transit stop.
+
+  - id: dave
+    name: Dave
+    role: student
+    traits: [budget-conscious, social]
+    home_location: suburbs_south
+    work_location: town_centre
+    preferred_mode: transit
+    age: 21
+    income_bracket: low
+    values: [affordability, social-life]
+    backstory: >
+      Dave is a university student living with his parents in the south suburbs.
+      He takes the bus because he cannot afford a car.
+
+  - id: eve
+    name: Eve
+    role: retiree
+    traits: [health-conscious, patient]
+    home_location: suburbs_north
+    work_location: town_centre
+    preferred_mode: walk
+    age: 68
+    income_bracket: medium
+    values: [health, routine]
+    backstory: >
+      Eve is a retired teacher who walks to town for her daily errands and social
+      activities. She treats the walk as her primary exercise.
+    schedule:
+      "9": "travel_to:town_centre"
+      "15": "travel_to:suburbs_north"
+
+interventions:
+  - tick: 7
+    name: congestion_charge
+    description: >
+      A £5 congestion charge is introduced for driving into the town centre
+      during peak hours (ticks 7-10).
+    effects:
+      drive_cost_multiplier: 2.5
+
+kpis:
+  - id: drive_trips
+    name: Driving Trips
+    description: Total number of driving trips per tick
+    metric: count
+    source: decisions
+    filter:
+      action: travel
+      mode: drive
+    unit: trips
+
+  - id: transit_share
+    name: Transit Mode Share
+    description: Ratio of transit trips to all trips per tick
+    metric: ratio
+    source: decisions
+    filter:
+      action: travel
+      mode: transit
+    unit: "%"
+
+  - id: total_commuters
+    name: Commuter Count
+    description: Number of agents with commuter role
+    metric: count
+    source: agent_states
+    filter:
+      role: commuter
+    unit: agents

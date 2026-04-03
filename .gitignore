@@ -214,3 +214,12 @@ viz/dist/
 # plans and harness
 plans/*
 harness/*
+
+# simulation run outputs
+runs/
+
+# benchmark results (generated, not tracked)
+benchmark/results/
+
+# macOS
+.DS_Store

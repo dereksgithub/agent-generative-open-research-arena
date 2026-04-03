@@ -1,0 +1,120 @@
+{"tick": 0, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 0, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 1, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 2, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 3, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 4, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 5, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 6, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 7, "agent_id": "alice", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "bob", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "carol", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "dave", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 7, "agent_id": "eve", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 8, "agent_id": "alice", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing drive based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "drive"}}
+{"tick": 8, "agent_id": "bob", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 8, "agent_id": "carol", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing drive based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "drive"}}
+{"tick": 8, "agent_id": "dave", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 8, "agent_id": "eve", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "walk"}}
+{"tick": 9, "agent_id": "alice", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing drive based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "drive"}}
+{"tick": 9, "agent_id": "bob", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 9, "agent_id": "carol", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing drive based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "drive"}}
+{"tick": 9, "agent_id": "dave", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 9, "agent_id": "eve", "action": "travel", "target": "town_centre", "reasoning": "I want to reach town_centre. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "walk"}}
+{"tick": 10, "agent_id": "alice", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "bob", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "carol", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "dave", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 10, "agent_id": "eve", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "alice", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "bob", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "carol", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "dave", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 11, "agent_id": "eve", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 12, "agent_id": "alice", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 12, "agent_id": "bob", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 12, "agent_id": "carol", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 12, "agent_id": "dave", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 12, "agent_id": "eve", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 13, "agent_id": "alice", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 13, "agent_id": "bob", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 13, "agent_id": "carol", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 13, "agent_id": "dave", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 13, "agent_id": "eve", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 14, "agent_id": "alice", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 14, "agent_id": "bob", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 14, "agent_id": "carol", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 14, "agent_id": "dave", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 14, "agent_id": "eve", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 15, "agent_id": "alice", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 15, "agent_id": "bob", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 15, "agent_id": "carol", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 15, "agent_id": "dave", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 15, "agent_id": "eve", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 16, "agent_id": "alice", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 16, "agent_id": "bob", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 16, "agent_id": "carol", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 16, "agent_id": "dave", "action": "stay", "target": "town_centre", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 16, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 17, "agent_id": "alice", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 17, "agent_id": "bob", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 17, "agent_id": "carol", "action": "travel", "target": "suburbs_south", "reasoning": "I want to reach suburbs_south. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 17, "agent_id": "dave", "action": "travel", "target": "suburbs_south", "reasoning": "I want to reach suburbs_south. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 17, "agent_id": "eve", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "walk"}}
+{"tick": 18, "agent_id": "alice", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing drive based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "drive"}}
+{"tick": 18, "agent_id": "bob", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 18, "agent_id": "carol", "action": "travel", "target": "suburbs_south", "reasoning": "I want to reach suburbs_south. Choosing drive based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "drive"}}
+{"tick": 18, "agent_id": "dave", "action": "travel", "target": "suburbs_south", "reasoning": "I want to reach suburbs_south. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 18, "agent_id": "eve", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "walk"}}
+{"tick": 19, "agent_id": "alice", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing drive based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "drive"}}
+{"tick": 19, "agent_id": "bob", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 19, "agent_id": "carol", "action": "travel", "target": "suburbs_south", "reasoning": "I want to reach suburbs_south. Choosing drive based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "drive"}}
+{"tick": 19, "agent_id": "dave", "action": "travel", "target": "suburbs_south", "reasoning": "I want to reach suburbs_south. Choosing transit based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "transit"}}
+{"tick": 19, "agent_id": "eve", "action": "travel", "target": "suburbs_north", "reasoning": "I want to reach suburbs_north. Choosing walk based on my preferences and current conditions. Active policies affect costs: {'drive': 2.5}.", "metadata": {"mode": "walk"}}
+{"tick": 20, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 20, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 20, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 20, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 20, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 21, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 21, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 21, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 21, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 21, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 22, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 22, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 22, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 22, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 22, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 23, "agent_id": "alice", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 23, "agent_id": "bob", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 23, "agent_id": "carol", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 23, "agent_id": "dave", "action": "stay", "target": "suburbs_south", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
+{"tick": 23, "agent_id": "eve", "action": "stay", "target": "suburbs_north", "reasoning": "No pressing goal this tick \u2014 staying put.", "metadata": {}}
