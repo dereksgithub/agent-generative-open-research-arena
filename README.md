@@ -33,10 +33,11 @@ AGORA is in **early development**. What works today:
 - **Research exports** — per-tick agent states, narratives, agent summaries, and KPI datasets for downstream analysis.
 - **LLM-backed agent mode** — provider-routed agent reasoning with structured prompts, audit logs, graceful heuristic fallback, and optional prompt caching.
 - **Local run viewer** — `agora viz` opens a browser-based visualization shell for launching example runs, inspecting outputs, and downloading artifacts.
+- **Spatial viewer** — `agora viz --mode spatial` opens a Three.js spatial playback view over the same run outputs.
 
 ### What is NOT implemented yet
 
-- Rich 3D spatial visualization / map-based rendering
+- GeoJSON / OpenStreetMap-backed real-city map loading
 - Hosted demo
 - MATSim import
 - Multiplayer interaction
@@ -74,11 +75,25 @@ Open the local run viewer:
 agora viz
 ```
 
-The supported Phase 5 workflow is:
+Open the spatial viewer:
+
+```bash
+agora viz --mode spatial
+# or
+agora viz --spatial
+```
+
+The supported browser workflows are:
 
 1. Run `agora viz`.
 2. Launch an example scenario from the sidebar or inspect an existing run in `runs/`.
 3. Review the timeline, agent states, decisions, KPIs, and export files in the browser.
+
+For spatial playback:
+
+1. Run `agora viz --mode spatial`.
+2. Select a run from the picker or open one via the URL hash.
+3. Inspect agent movement, intervention overlays, speech bubbles, and current-tick KPIs in the browser.
 
 Outputs are written to `runs/<scenario-name>/<timestamp>/`:
 
@@ -116,7 +131,8 @@ engine/agora/
   viz/                # Local viewer server and browser API
 
 scenarios/examples/   # Example scenario YAML files
-viz/src/              # Browser viewer source served by `agora viz`
+viz/src/              # Dashboard viewer source served by `agora viz`
+viz/spatial/          # Three.js spatial viewer served by `agora viz --mode spatial`
 ```
 
 ## CLI Reference
@@ -127,7 +143,9 @@ agora run <scenario-path>    # Run a scenario
   --output-dir PATH          # Custom output directory
   --no-llm                   # Use heuristic decisions (no API calls)
 
-agora viz                    # Launch the local run viewer
+agora viz                    # Launch the dashboard viewer
+  --mode MODE                # dashboard | spatial
+  --spatial                  # Alias for --mode spatial
   --port INT                 # Viewer port (default: 8080)
   --runs-dir PATH            # Run output root to browse
   --no-browser               # Start server without auto-opening a browser

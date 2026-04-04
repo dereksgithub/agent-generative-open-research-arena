@@ -113,6 +113,7 @@ class LLMStrategy(DecisionStrategy):
         self._consecutive_failures = 0
         self._max_consecutive_failures = max(1, max_consecutive_failures)
         self._llm_disabled_reason: str | None = None
+        self._loop: asyncio.AbstractEventLoop | None = None
 
     def set_event_log(self, event_log: "EventLog") -> None:
         """Attach the simulation event log for LLM audit logging."""
@@ -124,21 +125,23 @@ class LLMStrategy(DecisionStrategy):
         goal: str,
         perception: dict[str, Any],
     ) -> "Decision":
-        """Synchronous wrapper — runs the async LLM call in an event loop."""
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
+        """Synchronous wrapper — runs the async LLM call in a persistent event loop."""
+        # Use a single persistent loop to avoid "Event loop is closed" errors
+        # when httpx tries to clean up connections after the loop that created
+        # them has been destroyed by a prior asyncio.run() call.
+        if self._loop is None or self._loop.is_closed():
+            self._loop = asyncio.new_event_loop()
 
-        if loop and loop.is_running():
-            # We're inside an existing event loop (e.g. Jupyter).
-            # Create a new thread to run the coroutine.
-            import concurrent.futures
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                future = pool.submit(asyncio.run, self._decide_async(agent, goal, perception))
-                return future.result()
-        else:
-            return asyncio.run(self._decide_async(agent, goal, perception))
+        try:
+            return self._loop.run_until_complete(
+                self._decide_async(agent, goal, perception)
+            )
+        except RuntimeError:
+            # Fallback: new loop if something went wrong
+            self._loop = asyncio.new_event_loop()
+            return self._loop.run_until_complete(
+                self._decide_async(agent, goal, perception)
+            )
 
     async def _decide_async(
         self,

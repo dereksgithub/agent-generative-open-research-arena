@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from agora.viz.server import VizHandler, run_server
+from agora.viz.server import _DASHBOARD_STATIC_DIR, VizHandler
 
 # We test the handler directly by running a real HTTP server on an ephemeral port.
 
@@ -82,6 +82,36 @@ def viz_server(run_output: Path):
         port = s.getsockname()[1]
 
     VizHandler.runs_dir = run_output.resolve()
+    VizHandler.static_dir = _DASHBOARD_STATIC_DIR.resolve()
+
+    server = HTTPServer(("127.0.0.1", port), VizHandler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    yield ("127.0.0.1", port)
+    server.shutdown()
+
+
+@pytest.fixture()
+def viz_server_spatial(run_output: Path, tmp_path: Path):
+    """Start a viz server with a fake built spatial frontend."""
+    import socket
+    from http.server import HTTPServer
+
+    spatial_dir = tmp_path / "spatial-dist"
+    assets_dir = spatial_dir / "assets"
+    assets_dir.mkdir(parents=True)
+    (spatial_dir / "index.html").write_text(
+        "<html><body><h1>AGORA Spatial Viewer</h1><script src='/assets/spatial.js'></script></body></html>",
+        encoding="utf-8",
+    )
+    (assets_dir / "spatial.js").write_text("console.log('spatial');", encoding="utf-8")
+
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+
+    VizHandler.runs_dir = run_output.resolve()
+    VizHandler.static_dir = spatial_dir.resolve()
 
     server = HTTPServer(("127.0.0.1", port), VizHandler)
     thread = Thread(target=server.serve_forever, daemon=True)
@@ -207,6 +237,18 @@ class TestVizAPI:
         status, body = _get(host, port, "/api/nonexistent")
         assert status == 404
 
+    def test_spatial_index_returns_html(self, viz_server_spatial):
+        host, port = viz_server_spatial
+        status, body = _get(host, port, "/")
+        assert status == 200
+        assert "Spatial Viewer" in body
+
+    def test_spatial_assets_are_served(self, viz_server_spatial):
+        host, port = viz_server_spatial
+        status, body = _get(host, port, "/assets/spatial.js")
+        assert status == 200
+        assert "spatial" in body
+
 
 class TestVizCLI:
     def test_cli_viz_help(self):
@@ -215,3 +257,34 @@ class TestVizCLI:
         with pytest.raises(SystemExit) as exc_info:
             main(["viz", "--help"])
         assert exc_info.value.code == 0
+
+    def test_cli_viz_mode_is_forwarded(self, monkeypatch):
+        from agora.cli import main
+
+        captured = {}
+
+        def fake_run_server(**kwargs):
+            captured.update(kwargs)
+
+        monkeypatch.setattr("agora.viz.server.run_server", fake_run_server)
+
+        result = main(["viz", "--mode", "spatial", "--no-browser"])
+
+        assert result == 0
+        assert captured["mode"] == "spatial"
+        assert captured["open_browser"] is False
+
+    def test_cli_viz_spatial_alias_sets_mode(self, monkeypatch):
+        from agora.cli import main
+
+        captured = {}
+
+        def fake_run_server(**kwargs):
+            captured.update(kwargs)
+
+        monkeypatch.setattr("agora.viz.server.run_server", fake_run_server)
+
+        result = main(["viz", "--spatial", "--no-browser"])
+
+        assert result == 0
+        assert captured["mode"] == "spatial"

@@ -1,0 +1,264 @@
+# Auto-generated from demo/ personas + commute_base.yaml
+# 3 agents assembled
+
+id: demo_commute_v1
+name: demo_commute
+description: '3 agents commute from suburbs to the town centre. At tick 7 a congestion
+  charge is introduced, making driving more expensive. Observe how LLM-driven agents
+  adapt their mode choice.
+
+  '
+domain: transport
+version: '1'
+simulation:
+  ticks: 12
+  tick_unit: hour
+  seed: 42
+locations:
+- id: suburbs_north
+  name: North Suburbs
+  type: residential
+  x: 0.0
+  y: 2.0
+  resources:
+    parking_spaces: 120
+    households: 300
+- id: suburbs_south
+  name: South Suburbs
+  type: residential
+  x: 0.0
+  y: -2.0
+  resources:
+    parking_spaces: 90
+    households: 240
+- id: town_centre
+  name: Town Centre
+  type: commercial
+  x: 2.0
+  y: 0.0
+  resources:
+    jobs: 500
+    retail_units: 80
+- id: transit_hub
+  name: Transit Hub
+  type: transit_stop
+  x: 1.0
+  y: 0.0
+  resources:
+    platform_capacity: 250
+routes:
+- from: suburbs_north
+  to: town_centre
+  mode: drive
+  travel_time_minutes: 15
+- from: suburbs_north
+  to: town_centre
+  mode: transit
+  travel_time_minutes: 25
+- from: suburbs_north
+  to: town_centre
+  mode: walk
+  travel_time_minutes: 60
+- from: suburbs_south
+  to: town_centre
+  mode: drive
+  travel_time_minutes: 20
+- from: suburbs_south
+  to: town_centre
+  mode: transit
+  travel_time_minutes: 30
+- from: suburbs_south
+  to: town_centre
+  mode: walk
+  travel_time_minutes: 55
+- from: town_centre
+  to: suburbs_north
+  mode: drive
+  travel_time_minutes: 15
+- from: town_centre
+  to: suburbs_north
+  mode: transit
+  travel_time_minutes: 25
+- from: town_centre
+  to: suburbs_south
+  mode: drive
+  travel_time_minutes: 20
+- from: town_centre
+  to: suburbs_south
+  mode: transit
+  travel_time_minutes: 30
+interventions:
+- tick: 7
+  name: congestion_charge
+  description: 'A £5 congestion charge is introduced for driving into the town centre
+    during peak hours.
+
+    '
+  effects:
+    drive_cost_multiplier: 2.5
+kpis:
+- id: drive_trips
+  name: Driving Trips
+  description: Total driving trips per tick
+  metric: count
+  source: decisions
+  filter:
+    action: travel
+    mode: drive
+  unit: trips
+- id: transit_share
+  name: Transit Mode Share
+  description: Ratio of transit trips to all trips per tick
+  metric: ratio
+  source: decisions
+  filter:
+    action: travel
+    mode: transit
+  unit: '%'
+agents:
+- name: Alice Chen
+  id: alice
+  role: commuter
+  home_location: suburbs_north
+  work_location: town_centre
+  preferred_mode: drive
+  age: 34
+  income_bracket: medium
+  household_size: 3
+  traits:
+  - punctual
+  - cost-sensitive
+  values:
+  - convenience
+  - reliability
+  backstory: 'Alice is a project manager at a mid-size consultancy downtown. Every
+    morning she
+
+    drops her seven-year-old at school before heading to the office. She bought her
+
+    car specifically because the northern transit links are unreliable before 8 AM.
+
+    She''s heard about the new congestion charge but hasn''t looked into the details
+    —
+
+    she assumes it won''t be that bad.
+
+
+
+    Behaviour principles:
+
+    - Always prioritise arriving on time — lateness causes real anxiety.
+
+    - Will switch from driving to transit only when the financial cost becomes clearly
+    unreasonable (>2x normal).
+
+    - Dislikes crowded transit; prefers the privacy and control of her own car.
+
+    - Makes decisions quickly — she trusts her gut over lengthy deliberation.
+
+    - Keeps a mental budget: any commute over £10/day feels wasteful.
+
+
+
+    Past experiences:
+
+    - Last month the bus was 20 minutes late twice in one week.
+
+    - Fuel prices went up 8 % this quarter but she hasn''t changed behaviour yet.
+
+    - Her daughter''s school is on the route to work, so transit adds a detour.'
+- name: Bob Okafor
+  id: bob
+  role: commuter
+  home_location: suburbs_north
+  work_location: town_centre
+  preferred_mode: transit
+  age: 28
+  income_bracket: medium
+  traits:
+  - eco-conscious
+  - flexible
+  values:
+  - sustainability
+  - community
+  backstory: 'Bob is a freelance UX designer who works out of a co-working space in
+    the town
+
+    centre. He deliberately chose to live near a transit stop and structures his
+
+    morning around the 7:45 bus. He carries a folding bike for last-mile gaps. He''s
+
+    vocal on social media about sustainable transport and sees the congestion charge
+
+    as a positive step.
+
+
+
+    Behaviour principles:
+
+    - Will always prefer the lowest-carbon option, even if it takes longer.
+
+    - Views the commute as personal time — reading, podcasts, thinking.
+
+    - Open to trying new routes or modes; novelty is welcome, not stressful.
+
+    - Actively avoids driving unless there is truly no other option.
+
+    - Supportive of congestion charges and similar green policies.
+
+
+
+    Past experiences:
+
+    - Switched from driving to transit two years ago and never looked back.
+
+    - Recently started biking on dry days but there''s no bike route in the scenario.'
+- name: Carol Whitfield
+  id: carol
+  role: commuter
+  home_location: suburbs_south
+  work_location: town_centre
+  preferred_mode: drive
+  age: 45
+  income_bracket: high
+  household_size: 4
+  traits:
+  - time-sensitive
+  - habitual
+  values:
+  - efficiency
+  - status
+  backstory: 'Carol is a senior solicitor at a City-adjacent law firm with a branch
+    in town.
+
+    She lives in the south suburbs with her husband and two teenagers. Her mornings
+
+    are tightly scheduled: gym at 6, kids'' breakfast at 7, out the door by 7:30.
+
+    She views her BMW as an extension of her professional identity and would sooner
+
+    pay a premium than stand at a bus stop.
+
+
+
+    Behaviour principles:
+
+    - Time is money — literally. She bills at £300/hour so every minute counts.
+
+    - Strongly prefers routines; changing her commute feels like a loss of control.
+
+    - Will absorb higher costs (tolls, parking, fuel) rather than lose time.
+
+    - Only switches modes under extreme pressure — she needs a very strong reason.
+
+    - Judges transport by reliability and speed, not by cost or environment.
+
+
+
+    Past experiences:
+
+    - Has driven the same route for 12 years without exception.
+
+    - Tried the train once last year when her car was in the shop — hated the wait.
+
+    - Her firm reimburses parking but not congestion charges.'

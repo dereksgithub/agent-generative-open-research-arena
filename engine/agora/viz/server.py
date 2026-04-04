@@ -15,16 +15,61 @@ from __future__ import annotations
 import json
 import logging
 import mimetypes
+import subprocess
 import urllib.parse
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 logger = logging.getLogger(__name__)
 
-# Resolve paths
-_VIZ_STATIC_DIR = Path(__file__).resolve().parent.parent.parent.parent / "viz" / "src"
+VizMode = Literal["dashboard", "spatial"]
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_DASHBOARD_STATIC_DIR = _REPO_ROOT / "viz" / "src"
+_SPATIAL_APP_DIR = _REPO_ROOT / "viz" / "spatial"
+_SPATIAL_DIST_DIR = _SPATIAL_APP_DIR / "dist"
 _SCENARIOS_DIR = Path(__file__).resolve().parent.parent.parent.parent / "scenarios"
+
+
+def _resolve_static_dir(mode: VizMode) -> Path:
+    if mode == "dashboard":
+        return _DASHBOARD_STATIC_DIR
+
+    if mode != "spatial":
+        raise ValueError(f"Unsupported viz mode: {mode}")
+
+    spatial_index = _SPATIAL_DIST_DIR / "index.html"
+    if spatial_index.exists():
+        return _SPATIAL_DIST_DIR
+
+    try:
+        result = subprocess.run(
+            ["npm", "run", "build"],
+            cwd=_SPATIAL_APP_DIR,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError(
+            "Spatial mode requires a built frontend, but `npm` is not available. "
+            "Run `npm install && npm run build` in `viz/spatial`."
+        ) from exc
+    except subprocess.CalledProcessError as exc:
+        details = (exc.stderr or exc.stdout or str(exc)).strip().splitlines()
+        summary = details[-1] if details else str(exc)
+        raise RuntimeError(
+            "Failed to build the spatial frontend automatically. "
+            f"Run `npm install && npm run build` in `viz/spatial`. Build error: {summary}"
+        ) from exc
+
+    if result.returncode != 0 or not spatial_index.exists():
+        raise RuntimeError(
+            "Spatial frontend build did not produce `viz/spatial/dist/index.html`."
+        )
+
+    return _SPATIAL_DIST_DIR
 
 
 class VizHandler(SimpleHTTPRequestHandler):
@@ -32,13 +77,14 @@ class VizHandler(SimpleHTTPRequestHandler):
 
     runs_dir: Path = Path("runs")
     scenarios_dir: Path = _SCENARIOS_DIR
+    static_dir: Path = _DASHBOARD_STATIC_DIR
 
     def do_GET(self) -> None:
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.rstrip("/")
 
         if path == "" or path == "/":
-            self._serve_file(_VIZ_STATIC_DIR / "index.html", "text/html")
+            self._serve_file(self.static_dir / "index.html", "text/html")
         elif path.startswith("/static/"):
             rel = path[len("/static/"):]
             self._serve_static(rel)
@@ -51,7 +97,7 @@ class VizHandler(SimpleHTTPRequestHandler):
         else:
             # Try serving from static dir as fallback
             rel = path.lstrip("/")
-            candidate = _VIZ_STATIC_DIR / rel
+            candidate = self.static_dir / rel
             if candidate.exists() and candidate.is_file():
                 ctype = mimetypes.guess_type(str(candidate))[0] or "application/octet-stream"
                 self._serve_file(candidate, ctype)
@@ -192,8 +238,8 @@ class VizHandler(SimpleHTTPRequestHandler):
             self._json_response(404, {"error": "Not found"})
 
     def _serve_static(self, rel_path: str) -> None:
-        full = (_VIZ_STATIC_DIR / rel_path).resolve()
-        if not str(full).startswith(str(_VIZ_STATIC_DIR.resolve())):
+        full = (self.static_dir / rel_path).resolve()
+        if not str(full).startswith(str(self.static_dir.resolve())):
             self._json_response(403, {"error": "Forbidden"})
             return
         if not full.exists() or not full.is_file():
@@ -221,14 +267,17 @@ def run_server(
     port: int = 8080,
     runs_dir: Path = Path("runs"),
     open_browser: bool = True,
+    mode: VizMode = "dashboard",
 ) -> None:
     """Start the viz server."""
     VizHandler.runs_dir = runs_dir.resolve()
     VizHandler.scenarios_dir = _SCENARIOS_DIR
+    VizHandler.static_dir = _resolve_static_dir(mode).resolve()
 
     server = ThreadingHTTPServer((host, port), VizHandler)
     url = f"http://{host}:{port}"
     print(f"AGORA viz server running at {url}")
+    print(f"Mode: {mode}")
     print(f"Serving runs from: {runs_dir.resolve()}")
     print("Press Ctrl+C to stop.\n")
 

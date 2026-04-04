@@ -1,0 +1,135 @@
+# Base template for commute scenarios — agents are injected by assemble_personas.py
+
+id: demo_commute_v1
+name: demo_commute
+description: >
+  3 agents commute from suburbs to the town centre.
+  At tick 7 a congestion charge is introduced, making driving more expensive.
+  Observe how LLM-driven agents adapt their mode choice.
+domain: transport
+version: "1"
+
+simulation:
+  ticks: 12
+  tick_unit: hour
+  seed: 42
+
+locations:
+  - id: suburbs_north
+    name: North Suburbs
+    type: residential
+    x: 0.0
+    y: 2.0
+    resources:
+      parking_spaces: 120
+      households: 300
+
+  - id: suburbs_south
+    name: South Suburbs
+    type: residential
+    x: 0.0
+    y: -2.0
+    resources:
+      parking_spaces: 90
+      households: 240
+
+  - id: town_centre
+    name: Town Centre
+    type: commercial
+    x: 2.0
+    y: 0.0
+    resources:
+      jobs: 500
+      retail_units: 80
+
+  - id: transit_hub
+    name: Transit Hub
+    type: transit_stop
+    x: 1.0
+    y: 0.0
+    resources:
+      platform_capacity: 250
+
+routes:
+  - from: suburbs_north
+    to: town_centre
+    mode: drive
+    travel_time_minutes: 15
+
+  - from: suburbs_north
+    to: town_centre
+    mode: transit
+    travel_time_minutes: 25
+
+  - from: suburbs_north
+    to: town_centre
+    mode: walk
+    travel_time_minutes: 60
+
+  - from: suburbs_south
+    to: town_centre
+    mode: drive
+    travel_time_minutes: 20
+
+  - from: suburbs_south
+    to: town_centre
+    mode: transit
+    travel_time_minutes: 30
+
+  - from: suburbs_south
+    to: town_centre
+    mode: walk
+    travel_time_minutes: 55
+
+  - from: town_centre
+    to: suburbs_north
+    mode: drive
+    travel_time_minutes: 15
+
+  - from: town_centre
+    to: suburbs_north
+    mode: transit
+    travel_time_minutes: 25
+
+  - from: town_centre
+    to: suburbs_south
+    mode: drive
+    travel_time_minutes: 20
+
+  - from: town_centre
+    to: suburbs_south
+    mode: transit
+    travel_time_minutes: 30
+
+interventions:
+  - tick: 7
+    name: congestion_charge
+    description: >
+      A £5 congestion charge is introduced for driving into the town centre
+      during peak hours.
+    effects:
+      drive_cost_multiplier: 2.5
+
+kpis:
+  - id: drive_trips
+    name: Driving Trips
+    description: Total driving trips per tick
+    metric: count
+    source: decisions
+    filter:
+      action: travel
+      mode: drive
+    unit: trips
+
+  - id: transit_share
+    name: Transit Mode Share
+    description: Ratio of transit trips to all trips per tick
+    metric: ratio
+    source: decisions
+    filter:
+      action: travel
+      mode: transit
+    unit: "%"
+
+# agents: [] — will be populated by assemble_personas.py
+agents: []

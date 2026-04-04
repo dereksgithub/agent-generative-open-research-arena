@@ -102,6 +102,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # --- agora viz -----------------------------------------------------------
     viz_p = sub.add_parser("viz", help="Launch the run viewer in the browser")
+    viz_p.set_defaults(mode="dashboard")
     viz_p.add_argument(
         "--port", type=int, default=8080, help="Server port (default: 8080)"
     )
@@ -118,6 +119,19 @@ def main(argv: list[str] | None = None) -> int:
         "--no-browser",
         action="store_true",
         help="Don't auto-open the browser",
+    )
+    viz_p.add_argument(
+        "--mode",
+        choices=("dashboard", "spatial"),
+        default="dashboard",
+        help="Viewer mode to launch (default: dashboard)",
+    )
+    viz_p.add_argument(
+        "--spatial",
+        action="store_const",
+        const="spatial",
+        dest="mode",
+        help="Alias for --mode spatial",
     )
 
     args = parser.parse_args(argv)
@@ -182,13 +196,18 @@ def _cmd_viz(args: argparse.Namespace) -> int:
     """Execute `agora viz` — launch the browser-based run viewer."""
     from agora.viz.server import run_server
 
-    run_server(
-        host=args.host,
-        port=args.port,
-        runs_dir=args.runs_dir,
-        open_browser=not args.no_browser,
-    )
-    return 0
+    try:
+        run_server(
+            host=args.host,
+            port=args.port,
+            runs_dir=args.runs_dir,
+            open_browser=not args.no_browser,
+            mode=args.mode,
+        )
+        return 0
+    except RuntimeError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

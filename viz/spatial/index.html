@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AGORA — Spatial Viewer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #1a1a2e;
+      --surface: #16213e;
+      --surface-2: #0f3460;
+      --text: #e0e0e0;
+      --text-dim: #90a4ae;
+      --accent: #7c4dff;
+      --accent-dim: #5c35cc;
+      --red: #ff1744;
+      --orange: #ffa726;
+      --green: #66bb6a;
+      --blue: #42a5f5;
+      --radius: 8px;
+    }
+
+    body {
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #viewer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Loading screen */
+    #loading {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      color: var(--text-dim);
+      white-space: pre-line;
+      text-align: center;
+      max-width: 500px;
+    }
+
+    /* Run picker */
+    #run-picker {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--surface);
+      border: 1px solid var(--surface-2);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 420px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    #run-picker h2 {
+      font-size: 16px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    #run-picker .picker-hint {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .run-option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: var(--bg);
+      border: 1px solid var(--surface-2);
+      color: var(--text);
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    .run-option:hover {
+      background: var(--surface-2);
+      border-color: var(--accent);
+    }
+
+    .run-ts {
+      color: var(--text-dim);
+      font-size: 10px;
+    }
+
+    #run-picker .manual-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    #run-path-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--surface-2);
+      color: var(--text);
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    #run-path-input::placeholder { color: var(--text-dim); }
+
+    #btn-go {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    /* UI overlay */
+    #ui-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    #ui-overlay > * { pointer-events: auto; }
+
+    /* Header bar */
+    #header-bar {
+      position: absolute;
+      top: 12px; left: 12px; right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #header-bar h1 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+
+    #header-bar h1 span {
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+
+    /* Playback bar */
+    #playback-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--surface-2);
+      border-radius: var(--radius);
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+
+    #playback-bar button {
+      background: var(--surface-2);
+      border: 1px solid var(--accent-dim);
+      color: var(--text);
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    #playback-bar button:hover {
+      background: var(--accent-dim);
+    }
+
+    #tick-scrubber {
+      width: 200px;
+      accent-color: var(--accent);
+    }
+
+    #tick-label {
+      min-width: 160px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    #speed-label {
+      color: var(--orange);
+      min-width: 30px;
+      text-align: center;
+    }
+
+    /* HUD */
+    #hud {
+      position: absolute;
+      top: 48px;
+      right: 12px;
+      width: 280px;
+      background: rgba(22, 33, 62, 0.9);
+      border: 1px solid var(--surface-2);
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #hud h3 {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+
+    .hud-field { color: var(--text); font-weight: 600; }
+    .hud-dim { color: var(--text-dim); }
+    #hud-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      word-break: break-word;
+    }
+
+    .hud-tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .hud-tag--intervention {
+      background: rgba(255, 23, 68, 0.2);
+      color: var(--red);
+      border: 1px solid rgba(255, 23, 68, 0.4);
+    }
+
+    .hud-kpi {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+    }
+
+    .hud-kpi-val {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .hud-kpi-name { color: var(--text-dim); }
+
+    /* Legend */
+    #legend {
+      position: absolute;
+      bottom: 64px;
+      left: 12px;
+      background: rgba(22, 33, 62, 0.9);
+      border: 1px solid var(--surface-2);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      font-size: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-line {
+      width: 20px;
+      height: 2px;
+      flex-shrink: 0;
+    }
+
+    .legend-line--dashed {
+      background: repeating-linear-gradient(
+        90deg,
+        currentColor 0px,
+        currentColor 4px,
+        transparent 4px,
+        transparent 7px
+      );
+      height: 2px;
+    }
+
+    .legend-line--dotted {
+      background: repeating-linear-gradient(
+        90deg,
+        currentColor 0px,
+        currentColor 2px,
+        transparent 2px,
+        transparent 6px
+      );
+      height: 2px;
+    }
+
+    /* Keyboard hints */
+    #hints {
+      position: absolute;
+      bottom: 64px;
+      right: 12px;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    kbd {
+      background: var(--surface-2);
+      border: 1px solid var(--accent-dim);
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-family: inherit;
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">Loading AGORA Spatial Viewer...</div>
+
+  <!-- Run picker (shown when no run is selected and no server auto-detect) -->
+  <div id="run-picker" class="hidden">
+    <h2>AGORA Spatial Viewer</h2>
+    <p class="picker-hint">Select a simulation run to visualise:</p>
+    <div id="run-list-picker"></div>
+    <div class="manual-row">
+      <input type="text" id="run-path-input" placeholder="e.g. demo_commute/20260404_120000">
+      <button id="btn-go">Go</button>
+    </div>
+  </div>
+
+  <canvas id="viewer" class="hidden"></canvas>
+
+  <div id="ui-overlay" class="hidden">
+    <!-- Header -->
+    <div id="header-bar">
+      <h1>AGORA <span>Spatial Viewer</span></h1>
+    </div>
+
+    <!-- Playback controls -->
+    <div id="playback-bar">
+      <button id="btn-step-back" title="Step back (←)">⏮</button>
+      <button id="btn-play" title="Play/Pause (Space)">▶</button>
+      <button id="btn-step-fwd" title="Step forward (→)">⏭</button>
+      <input type="range" id="tick-scrubber" min="0" max="23" value="0">
+      <span id="tick-label">Tick 0 / 23 · hour</span>
+      <button id="btn-speed-down" title="Slower">−</button>
+      <span id="speed-label">1x</span>
+      <button id="btn-speed-up" title="Faster">+</button>
+    </div>
+
+    <!-- HUD panel -->
+    <div id="hud">
+      <div>
+        <h3>Run</h3>
+        <div id="hud-info"></div>
+      </div>
+      <div>
+        <h3>Interventions</h3>
+        <div id="hud-interventions"><span class="hud-dim">No active interventions</span></div>
+      </div>
+      <div>
+        <h3>KPIs</h3>
+        <div id="hud-kpis"></div>
+      </div>
+      <div>
+        <h3>Agents</h3>
+        <div id="hud-agents"></div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div id="legend">
+      <div class="legend-row"><div class="legend-dot" style="background:#66bb6a"></div> Residential</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#42a5f5"></div> Commercial</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ffa726"></div> Transit Stop</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#26c6da"></div> Healthcare</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ffd54f"></div> Public</div>
+      <div class="legend-row"><div class="legend-line" style="background:#90a4ae"></div> Drive</div>
+      <div class="legend-row"><div class="legend-line legend-line--dashed" style="color:#ffa726"></div> Transit</div>
+      <div class="legend-row"><div class="legend-line legend-line--dotted" style="color:#a5d6a7"></div> Walk</div>
+      <hr style="border-color:#333;width:100%">
+      <div class="legend-row"><div class="legend-dot" style="background:#42a5f5"></div> Commuter</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ab47bc"></div> Student</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ff7043"></div> Retiree</div>
+    </div>
+
+    <!-- Keyboard hints -->
+    <div id="hints">
+      <kbd>Space</kbd> play/pause<br>
+      <kbd>←</kbd> <kbd>→</kbd> step<br>
+      <kbd>Scroll</kbd> zoom<br>
+      <kbd>Drag</kbd> pan<br>
+      <kbd>Hover</kbd>/<kbd>Click</kbd> agent bubble<br>
+      <kbd>R</kbd> reset view
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

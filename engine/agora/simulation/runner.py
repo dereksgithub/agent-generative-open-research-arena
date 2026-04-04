@@ -152,15 +152,15 @@ def run_scenario(
 
     # 9. Close LLM client
     if isinstance(strategy, LLMStrategy):
-        import asyncio
         try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
-        if loop and loop.is_running():
-            loop.create_task(strategy.close())
-        else:
-            asyncio.run(strategy.close())
+            if strategy._loop and not strategy._loop.is_closed():
+                strategy._loop.run_until_complete(strategy.close())
+                strategy._loop.close()
+            else:
+                import asyncio
+                asyncio.run(strategy.close())
+        except Exception:
+            pass  # best-effort cleanup
 
     logger.info("Run complete: %d decisions written", len(decisions))
     return RunResult(
