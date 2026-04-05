@@ -38,6 +38,40 @@ def run_output(tmp_path: Path) -> Path:
     }
     (run_dir / "metadata.json").write_text(json.dumps(meta), encoding="utf-8")
 
+    # scenario.yaml
+    (run_dir / "scenario.yaml").write_text(
+        "\n".join([
+            "id: morning_commute_v1",
+            "name: morning_commute",
+            "domain: transport",
+            "simulation:",
+            "  ticks: 4",
+            "  tick_unit: hour",
+            "  seed: 42",
+            "locations:",
+            "  - id: home",
+            "    name: Home",
+            "    type: residential",
+            "    x: 0",
+            "    y: 0",
+            "routes: []",
+            "agents:",
+            "  - id: alice",
+            "    name: Alice",
+            "    role: commuter",
+            "    traits: []",
+            "    home_location: home",
+            "  - id: bob",
+            "    name: Bob",
+            "    role: commuter",
+            "    traits: []",
+            "    home_location: home",
+            "interventions: []",
+            "kpis: []",
+        ]),
+        encoding="utf-8",
+    )
+
     # decisions.jsonl
     decisions = [
         {"tick": 0, "agent_id": "alice", "action": "stay", "target": "home", "reasoning": "No goal.", "metadata": {}},
@@ -158,6 +192,8 @@ class TestVizAPI:
         assert run["scenario"] == "morning_commute"
         assert run["run_id"] == "abc123def456"
         assert run["seed"] == 42
+        assert run["ready"] is True
+        assert run["issues"] == []
 
     def test_api_run_file_metadata(self, viz_server):
         host, port = viz_server
@@ -236,6 +272,42 @@ class TestVizAPI:
         host, port = viz_server
         status, body = _get(host, port, "/api/nonexistent")
         assert status == 404
+
+    def test_api_runs_marks_incomplete_runs(self, run_output):
+        import socket
+        from http.server import HTTPServer
+
+        scenario_dir = run_output / "morning_commute"
+        partial_run = scenario_dir / "20260403_090000"
+        partial_run.mkdir(parents=True)
+        (partial_run / "scenario.yaml").write_text("name: morning_commute\nsimulation:\n  ticks: 4\n", encoding="utf-8")
+        (partial_run / "metadata.json").write_text(json.dumps({"scenario_name": "morning_commute"}), encoding="utf-8")
+
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
+
+        VizHandler.runs_dir = run_output.resolve()
+        VizHandler.static_dir = _DASHBOARD_STATIC_DIR.resolve()
+        server = HTTPServer(("127.0.0.1", port), VizHandler)
+        thread = Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+
+        try:
+            status, body = _get("127.0.0.1", port, "/api/runs")
+        finally:
+            server.shutdown()
+
+        assert status == 200
+        data = json.loads(body)
+        assert len(data["runs"]) == 2
+        ready_run = data["runs"][0]
+        partial = data["runs"][1]
+        assert ready_run["ready"] is True
+        assert partial["ready"] is False
+        assert "missing decisions.jsonl" in partial["issues"]
+        assert "missing aggregate.csv" in partial["issues"]
+        assert "missing agent_states.jsonl" in partial["issues"]
 
     def test_spatial_index_returns_html(self, viz_server_spatial):
         host, port = viz_server_spatial

@@ -115,8 +115,36 @@ header .subtitle { color: var(--text-dim); font-weight: 400; }
 }
 #run-list li:hover { background: var(--surface-2); }
 #run-list li.active { background: var(--surface-2); border-color: var(--accent); }
+#run-list li.run-invalid {
+  border-color: rgba(224, 82, 82, 0.35);
+}
+#run-list li.run-invalid:hover {
+  background: rgba(224, 82, 82, 0.08);
+}
+#run-list .run-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 #run-list li .run-scenario { font-weight: 600; font-size: 12px; }
 #run-list li .run-meta { font-size: 11px; color: var(--text-dim); }
+#run-list li .run-issue {
+  margin-top: 4px;
+  color: var(--red);
+  font-size: 11px;
+}
+.run-badge {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(224, 82, 82, 0.16);
+  border: 1px solid rgba(224, 82, 82, 0.35);
+  color: var(--red);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
 
 #content {
   flex: 1;
@@ -124,6 +152,10 @@ header .subtitle { color: var(--text-dim); font-weight: 400; }
   padding: 16px 24px;
 }
 #placeholder { padding: 60px; text-align: center; color: var(--text-dim); }
+#placeholder .placeholder-detail {
+  margin-top: 8px;
+  color: var(--red);
+}
 
 #tabs {
   display: flex;

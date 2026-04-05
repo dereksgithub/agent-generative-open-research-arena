@@ -55,7 +55,7 @@ export function createHUD(
     if (kpiEl && kpis?.kpis) {
       kpiEl.innerHTML = Object.values(kpis.kpis)
         .map((k) => {
-          const val = k.per_tick[String(tick)] ?? 0;
+          const val = k.per_tick?.[String(tick)] ?? 0;
           const formatted =
             k.metric === "ratio"
               ? (val * 100).toFixed(0) + "%"

@@ -21,6 +21,8 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Literal
 
+import yaml
+
 logger = logging.getLogger(__name__)
 
 VizMode = Literal["dashboard", "spatial"]
@@ -30,6 +32,13 @@ _DASHBOARD_STATIC_DIR = _REPO_ROOT / "viz" / "src"
 _SPATIAL_APP_DIR = _REPO_ROOT / "viz" / "spatial"
 _SPATIAL_DIST_DIR = _SPATIAL_APP_DIR / "dist"
 _SCENARIOS_DIR = Path(__file__).resolve().parent.parent.parent.parent / "scenarios"
+_REQUIRED_RUN_FILES = (
+    "scenario.yaml",
+    "metadata.json",
+    "decisions.jsonl",
+    "aggregate.csv",
+    "agent_states.jsonl",
+)
 
 
 def _resolve_static_dir(mode: VizMode) -> Path:
@@ -129,27 +138,16 @@ class VizHandler(SimpleHTTPRequestHandler):
             for run_dir in sorted(scenario_dir.iterdir(), reverse=True):
                 if not run_dir.is_dir():
                     continue
-                meta_path = run_dir / "metadata.json"
-                entry: dict[str, Any] = {
-                    "path": f"{scenario_dir.name}/{run_dir.name}",
-                    "scenario": scenario_dir.name,
-                    "timestamp": run_dir.name,
-                }
-                if meta_path.exists():
-                    try:
-                        meta = json.loads(meta_path.read_text(encoding="utf-8"))
-                        entry.update({
-                            "run_id": meta.get("run_id", ""),
-                            "seed": meta.get("seed"),
-                            "total_ticks": meta.get("total_ticks", 0),
-                            "total_decisions": meta.get("total_decisions", 0),
-                            "total_agents": meta.get("total_agents", 0),
-                            "decision_mode": meta.get("decision_mode", ""),
-                            "domain": meta.get("domain", ""),
-                        })
-                    except (json.JSONDecodeError, OSError):
-                        pass
-                runs.append(entry)
+                runs.append(_summarize_run_dir(run_dir, scenario_dir.name))
+
+        runs.sort(
+            key=lambda run: (
+                run.get("ready", False),
+                str(run.get("timestamp", "")),
+                str(run.get("path", "")),
+            ),
+            reverse=True,
+        )
 
         self._json_response(200, {"runs": runs})
 
@@ -259,6 +257,69 @@ class VizHandler(SimpleHTTPRequestHandler):
 
     def log_message(self, format: str, *args: Any) -> None:
         logger.debug(format, *args)
+
+
+def _summarize_run_dir(run_dir: Path, scenario_name: str) -> dict[str, Any]:
+    """Build a viewer-friendly summary for one run directory."""
+    issues: list[str] = []
+
+    for filename in _REQUIRED_RUN_FILES:
+        if not (run_dir / filename).exists():
+            issues.append(f"missing {filename}")
+
+    metadata = _load_json_file(run_dir / "metadata.json", issues)
+    scenario = _load_yaml_file(run_dir / "scenario.yaml", issues)
+    simulation = scenario.get("simulation") if isinstance(scenario.get("simulation"), dict) else {}
+    agents = scenario.get("agents") if isinstance(scenario.get("agents"), list) else []
+
+    return {
+        "path": f"{scenario_name}/{run_dir.name}",
+        "scenario": metadata.get("scenario_name") or scenario.get("name") or scenario_name,
+        "timestamp": run_dir.name,
+        "run_id": metadata.get("run_id") or run_dir.name,
+        "seed": _coerce_int(metadata.get("seed"), _coerce_int(simulation.get("seed"), None)),
+        "total_ticks": _coerce_int(
+            metadata.get("total_ticks"),
+            _coerce_int(simulation.get("ticks"), 0),
+        ),
+        "total_decisions": _coerce_int(metadata.get("total_decisions"), 0),
+        "total_agents": _coerce_int(metadata.get("total_agents"), len(agents)),
+        "decision_mode": metadata.get("decision_mode") or "unknown",
+        "domain": metadata.get("domain") or scenario.get("domain") or "",
+        "ready": len(issues) == 0,
+        "issues": issues,
+    }
+
+
+def _load_json_file(path: Path, issues: list[str]) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        issues.append(f"invalid {path.name}")
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _load_yaml_file(path: Path, issues: list[str]) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, OSError):
+        issues.append(f"invalid {path.name}")
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _coerce_int(value: Any, default: int | None) -> int | None:
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def run_server(

@@ -58,17 +58,35 @@ function renderRunList() {
     return;
   }
   ul.innerHTML = state.runs.map(r => `
-    <li data-path="${r.path}" class="${state.selectedRun?.path === r.path ? "active" : ""}">
-      <div class="run-scenario">${r.scenario}</div>
+    <li
+      data-path="${r.path}"
+      data-ready="${r.ready !== false}"
+      class="${state.selectedRun?.path === r.path ? "active" : ""} ${r.ready === false ? "run-invalid" : ""}"
+    >
+      <div class="run-heading">
+        <div class="run-scenario">${r.scenario}</div>
+        ${r.ready === false ? '<span class="run-badge">partial</span>' : ""}
+      </div>
       <div class="run-meta">
         ${r.timestamp} &middot; seed ${r.seed ?? "?"} &middot; ${r.total_decisions ?? "?"} decisions
         ${r.decision_mode ? " &middot; " + r.decision_mode : ""}
       </div>
+      ${r.ready === false && Array.isArray(r.issues) && r.issues.length > 0
+        ? `<div class="run-issue">${escapeHtml(r.issues.join(" · "))}</div>`
+        : ""}
     </li>
   `).join("");
 
   ul.querySelectorAll("li[data-path]").forEach(li => {
-    li.addEventListener("click", () => selectRun(li.dataset.path));
+    li.addEventListener("click", () => {
+      const run = state.runs.find(r => r.path === li.dataset.path);
+      if (!run) return;
+      if (run.ready === false) {
+        selectBrokenRun(run);
+        return;
+      }
+      selectRun(li.dataset.path);
+    });
   });
 }
 
@@ -77,9 +95,7 @@ async function selectRun(path) {
   if (!run) return;
   state.selectedRun = run;
   renderRunList();
-
-  document.getElementById("run-info").textContent =
-    `${run.scenario} | run ${run.run_id || "?"} | seed ${run.seed ?? "?"} | ${run.total_ticks} ticks, ${run.total_agents} agents`;
+  document.getElementById("run-info").textContent = `${run.scenario} | loading...`;
 
   const base = `/api/runs/${path}`;
   try {
@@ -95,7 +111,10 @@ async function selectRun(path) {
       ]);
 
     state.runData = {
-      metadata: metadata.status === "fulfilled" ? metadata.value : {},
+      metadata: normalizeMetadata(
+        metadata.status === "fulfilled" ? metadata.value : {},
+        run
+      ),
       decisions: decisions.status === "fulfilled" ? decisions.value : [],
       aggregate: aggregate.status === "fulfilled" ? parseCSV(aggregate.value) : [],
       agentStates: agentStates.status === "fulfilled" ? agentStates.value : [],
@@ -103,6 +122,9 @@ async function selectRun(path) {
       kpis: kpis.status === "fulfilled" ? kpis.value : null,
       events: events.status === "fulfilled" ? events.value : [],
     };
+
+    document.getElementById("run-info").textContent =
+      `${state.runData.metadata.scenario_name} | run ${state.runData.metadata.run_id} | seed ${state.runData.metadata.seed ?? "?"} | ${state.runData.metadata.total_ticks} ticks, ${state.runData.metadata.total_agents} agents`;
 
     document.getElementById("placeholder").classList.add("hidden");
     document.getElementById("panels").classList.remove("hidden");
@@ -112,6 +134,22 @@ async function selectRun(path) {
   } catch (e) {
     console.error("Failed to load run data:", e);
   }
+}
+
+function selectBrokenRun(run) {
+  state.selectedRun = run;
+  state.runData = {};
+  renderRunList();
+
+  document.getElementById("panels").classList.add("hidden");
+  const placeholder = document.getElementById("placeholder");
+  placeholder.classList.remove("hidden");
+  placeholder.innerHTML = `
+    <p>This run is incomplete and cannot be opened in the viewer.</p>
+    <p class="placeholder-detail">${escapeHtml((run.issues || ["Missing required run artifacts."]).join(" · "))}</p>
+  `;
+  document.getElementById("run-info").textContent =
+    `${run.scenario} | ${run.path} | incomplete run`;
 }
 
 function parseCSV(text) {
@@ -394,6 +432,27 @@ async function launchRun() {
   } catch (e) {
     status.textContent = `Error: ${e.message}`;
   }
+}
+
+function normalizeMetadata(metadata, run) {
+  return {
+    agora_version: metadata.agora_version || "unknown",
+    run_id: metadata.run_id || run.run_id || run.path,
+    scenario_id: metadata.scenario_id || run.scenario,
+    scenario_name: metadata.scenario_name || run.scenario,
+    domain: metadata.domain || run.domain || "unknown",
+    decision_mode: metadata.decision_mode || run.decision_mode || "unknown",
+    total_ticks: normalizeNumber(metadata.total_ticks, run.total_ticks ?? 0),
+    total_agents: normalizeNumber(metadata.total_agents, run.total_agents ?? 0),
+    total_decisions: normalizeNumber(metadata.total_decisions, run.total_decisions ?? 0),
+    seed: normalizeNumber(metadata.seed, run.seed ?? null),
+  };
+}
+
+function normalizeNumber(value, fallback) {
+  if (value === null || value === undefined || value === "") return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 function escapeHtml(str) {

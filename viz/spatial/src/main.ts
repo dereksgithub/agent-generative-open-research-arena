@@ -12,7 +12,7 @@ import { createAgentManager } from "./agents";
 import { createPlayback } from "./playback";
 import { createInterventionManager } from "./interventions";
 import { createHUD } from "./hud";
-import type { RunData } from "./types";
+import type { RunData, RunListEntry } from "./types";
 
 const loadingEl = document.getElementById("loading")!;
 
@@ -24,7 +24,8 @@ function showStatus(msg: string): void {
 
 async function autoDetectRun(): Promise<string | null> {
   const runs = await listRuns();
-  if (runs.length > 0) return runs[0].path;
+  const firstReadyRun = runs.find((run) => run.ready !== false);
+  if (firstReadyRun) return firstReadyRun.path;
   return null;
 }
 
@@ -36,17 +37,18 @@ async function showRunPicker(): Promise<string> {
   loadingEl.classList.add("hidden");
 
   const list = document.getElementById("run-list-picker")!;
+  const hint = picker.querySelector(".picker-hint") as HTMLElement;
   const manualInput = document.getElementById("run-path-input") as HTMLInputElement;
   const goBtn = document.getElementById("btn-go") as HTMLButtonElement;
 
   if (runs.length > 0) {
-    list.innerHTML = runs
-      .map(
-        (r) =>
-          `<button class="run-option" data-path="${r.path}">${r.scenario} <span class="run-ts">${r.timestamp}</span></button>`
-      )
-      .join("");
+    const readyRuns = runs.filter((run) => run.ready !== false);
+    hint.textContent = readyRuns.length > 0
+      ? "Select a simulation run to visualise:"
+      : "No complete runs found yet. Broken runs are shown below for reference.";
+    list.innerHTML = runs.map(renderRunOption).join("");
   } else {
+    hint.innerHTML = "Select a simulation run to visualise:";
     list.innerHTML =
       '<p class="picker-hint">No runs found. Start the viz server (<code>agora viz</code>) or enter a run path manually.</p>';
   }
@@ -54,7 +56,7 @@ async function showRunPicker(): Promise<string> {
   return new Promise((resolve) => {
     list.addEventListener("click", (e) => {
       const btn = (e.target as HTMLElement).closest(".run-option") as HTMLElement | null;
-      if (btn?.dataset.path) {
+      if (btn?.dataset.path && btn.dataset.ready === "true") {
         picker.classList.add("hidden");
         resolve(btn.dataset.path);
       }
@@ -248,8 +250,12 @@ async function main(): Promise<void> {
     const decision = (runData.decisions ?? []).find(
       (d) => d.agent_id === agentId && d.tick === playback.currentTick
     );
+    const reasoning =
+      typeof decision?.reasoning === "string" && decision.reasoning.trim()
+        ? decision.reasoning
+        : "(no reasoning recorded)";
     const text = decision
-      ? `${sprite.name}: ${decision.reasoning}`
+      ? `${sprite.name}: ${reasoning}`
       : `${sprite.name}: (no decision this tick)`;
     agentMgr.showBubble(agentId, text);
   }
@@ -270,7 +276,7 @@ async function main(): Promise<void> {
     const hitId = pickAgentUnderPointer();
     if (hitId) {
       pinnedAgentId = pinnedAgentId === hitId ? null : hitId;
-      renderAgentBubble(pinnedAgentId ?? hitId);
+      renderAgentBubble(pinnedAgentId ?? hoveredAgentId);
     } else {
       pinnedAgentId = null;
       hoveredAgentId = null;
@@ -371,3 +377,28 @@ main().catch((err) => {
   console.error("[spatial] Fatal:", err);
   showStatus(`Fatal error: ${err}`);
 });
+
+function renderRunOption(run: RunListEntry): string {
+  const ready = run.ready !== false;
+  const issueText = Array.isArray(run.issues) ? run.issues.join(" · ") : "";
+  return `
+    <button
+      class="run-option ${ready ? "" : "run-option--invalid"}"
+      data-path="${ready ? run.path : ""}"
+      data-ready="${ready}"
+      ${ready ? "" : "disabled"}
+    >
+      <span class="run-option__title">
+        ${escapeHtml(run.scenario)}
+        <span class="run-ts">${escapeHtml(run.timestamp)}</span>
+      </span>
+      ${ready ? "" : `<span class="run-option__issue">${escapeHtml(issueText || "Incomplete run artifacts")}</span>`}
+    </button>
+  `;
+}
+
+function escapeHtml(text: string): string {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}

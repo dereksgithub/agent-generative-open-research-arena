@@ -9,6 +9,7 @@
 import jsYaml from "js-yaml";
 import type {
   RunData,
+  RunListEntry,
   Scenario,
   Metadata,
   AgentState,
@@ -76,10 +77,10 @@ async function fetchFileJsonOptional(runPath: string, filename: string): Promise
  * Load all data for a run given its path (e.g. "demo_commute/20260404_152322").
  */
 export async function loadRunData(runPath: string): Promise<RunData> {
-  const [scenarioText, metadata, statesText, decisionsText, eventsText, kpis] =
+  const [scenarioText, rawMetadata, statesText, decisionsText, eventsText, kpis] =
     await Promise.all([
       fetchFileText(runPath, "scenario.yaml"),
-      fetchFileJson(runPath, "metadata.json") as Promise<Metadata>,
+      fetchFileJsonOptional(runPath, "metadata.json"),
       fetchFileText(runPath, "agent_states.jsonl"),
       fetchFileText(runPath, "decisions.jsonl"),
       fetchFileText(runPath, "events.jsonl").catch(() => ""),
@@ -90,6 +91,13 @@ export async function loadRunData(runPath: string): Promise<RunData> {
   const agentStates = statesText ? parseJsonl<AgentState>(statesText) : [];
   const decisions = decisionsText ? parseJsonl<Decision>(decisionsText) : [];
   const events = eventsText ? parseJsonl<SimEvent>(eventsText) : [];
+  const metadata = normalizeMetadata(
+    rawMetadata as Partial<Metadata> | null,
+    runPath,
+    scenario,
+    decisions,
+    agentStates
+  );
 
   return { scenario, metadata, agentStates, decisions, events, kpis };
 }
@@ -98,11 +106,56 @@ export async function loadRunData(runPath: string): Promise<RunData> {
  * List available runs. Returns paths like ["demo_commute/20260404_152322"].
  * Tries the API first; returns empty array if unavailable.
  */
-export async function listRuns(): Promise<Array<{ path: string; scenario: string; timestamp: string }>> {
+export async function listRuns(): Promise<RunListEntry[]> {
   const resp = await tryFetch("/api/runs");
   if (resp) {
     const data = await resp.json();
     return data.runs ?? [];
   }
   return [];
+}
+
+function normalizeMetadata(
+  rawMetadata: Partial<Metadata> | null,
+  runPath: string,
+  scenario: Scenario,
+  decisions: Decision[],
+  agentStates: AgentState[]
+): Metadata {
+  const metadata = rawMetadata ?? {};
+  const inferredAgents = new Set(agentStates.map((state) => state.agent_id)).size
+    || scenario.agents?.length
+    || 0;
+  const inferredTicks = maxTick([
+    ...decisions.map((decision) => decision.tick),
+    ...agentStates.map((state) => state.tick),
+  ]) + 1;
+
+  return {
+    agora_version: String(metadata.agora_version ?? "unknown"),
+    run_id: String(metadata.run_id ?? runPath.split("/").at(-1) ?? runPath),
+    scenario_id: String(metadata.scenario_id ?? scenario.id ?? scenario.name ?? "unknown"),
+    scenario_name: String(metadata.scenario_name ?? scenario.name ?? "unknown"),
+    domain: String(metadata.domain ?? scenario.domain ?? "unknown"),
+    decision_mode: String(metadata.decision_mode ?? "unknown"),
+    total_ticks: toNumber(
+      metadata.total_ticks,
+      toNumber(scenario.simulation?.ticks, inferredTicks)
+    ),
+    total_agents: toNumber(metadata.total_agents, inferredAgents),
+    total_decisions: toNumber(metadata.total_decisions, decisions.length),
+    seed: toNumber(
+      metadata.seed,
+      toNumber(scenario.simulation?.seed, 0)
+    ),
+  };
+}
+
+function toNumber(value: unknown, fallback: number): number {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+function maxTick(values: number[]): number {
+  return values.length > 0 ? Math.max(...values) : -1;
 }

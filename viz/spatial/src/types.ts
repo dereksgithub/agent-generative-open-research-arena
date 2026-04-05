@@ -115,6 +115,21 @@ export interface Metadata {
   seed: number;
 }
 
+export interface RunListEntry {
+  path: string;
+  scenario: string;
+  timestamp: string;
+  run_id?: string;
+  seed?: number | null;
+  total_ticks?: number;
+  total_decisions?: number;
+  total_agents?: number;
+  decision_mode?: string;
+  domain?: string;
+  ready?: boolean;
+  issues?: string[];
+}
+
 /** All loaded data for a single run */
 export interface RunData {
   scenario: Scenario;
