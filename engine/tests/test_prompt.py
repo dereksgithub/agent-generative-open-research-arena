@@ -1,6 +1,5 @@
 """Tests for the cognition prompt contract (Phase 4)."""
 
-import json
 
 from agora.agents.agent import Agent
 from agora.cognition.prompt import (

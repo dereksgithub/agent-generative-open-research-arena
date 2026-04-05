@@ -5,11 +5,10 @@ from __future__ import annotations
 import json
 from unittest.mock import AsyncMock, Mock, patch
 
-import pytest
 
-from agora.agents.agent import Agent, Decision
+from agora.agents.agent import Agent
 from agora.agents.strategy import HeuristicStrategy, LLMStrategy
-from agora.llm.client import LLMError, LLMPermanentError, LLMResponse, LLMTransientError
+from agora.llm.client import LLMResponse, LLMTransientError
 from agora.simulation.event_log import EventLog, EventType
 
 

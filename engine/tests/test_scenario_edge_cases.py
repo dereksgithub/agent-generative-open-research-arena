@@ -10,11 +10,9 @@ import pytest
 
 from agora.scenarios.loader import load_scenario
 from agora.scenarios.schema import (
-    KPIDefinition,
     Location,
     PersonaDefinition,
     PolicyIntervention,
-    Route,
     ScenarioSpec,
     SimulationConfig,
 )
