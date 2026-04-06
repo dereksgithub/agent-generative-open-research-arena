@@ -44,8 +44,30 @@ class DecisionStrategy(ABC):
         agent: "Agent",
         goal: str,
         perception: dict[str, Any],
+        *,
+        parent_event_id: int | None = None,
     ) -> "Decision":
         """Given an agent, its goal, and its perception, produce a decision."""
+
+    def decide_with_provenance(
+        self,
+        agent: "Agent",
+        goal: str,
+        perception: dict[str, Any],
+        *,
+        parent_event_id: int | None = None,
+    ) -> tuple["Decision", int | None]:
+        """Return the decision plus the last strategy-owned event ID.
+
+        This preserves the original ``decide() -> Decision`` API while giving
+        the simulation engine an explicit provenance hook for Phase C.
+        """
+        return self.decide(
+            agent,
+            goal,
+            perception,
+            parent_event_id=parent_event_id,
+        ), None
 
     @property
     def name(self) -> str:
@@ -64,6 +86,8 @@ class HeuristicStrategy(DecisionStrategy):
         agent: "Agent",
         goal: str,
         perception: dict[str, Any],
+        *,
+        parent_event_id: int | None = None,
     ) -> "Decision":
         return agent.decide(goal, perception)
 
@@ -124,8 +148,27 @@ class LLMStrategy(DecisionStrategy):
         agent: "Agent",
         goal: str,
         perception: dict[str, Any],
+        *,
+        parent_event_id: int | None = None,
     ) -> "Decision":
-        """Synchronous wrapper — runs the async LLM call in a persistent event loop."""
+        """Compatibility wrapper returning only the parsed decision."""
+        decision, _ = self.decide_with_provenance(
+            agent,
+            goal,
+            perception,
+            parent_event_id=parent_event_id,
+        )
+        return decision
+
+    def decide_with_provenance(
+        self,
+        agent: "Agent",
+        goal: str,
+        perception: dict[str, Any],
+        *,
+        parent_event_id: int | None = None,
+    ) -> tuple["Decision", int | None]:
+        """Engine-facing wrapper that also returns the last LLM event ID."""
         # Use a single persistent loop to avoid "Event loop is closed" errors
         # when httpx tries to clean up connections after the loop that created
         # them has been destroyed by a prior asyncio.run() call.
@@ -134,13 +177,13 @@ class LLMStrategy(DecisionStrategy):
 
         try:
             return self._loop.run_until_complete(
-                self._decide_async(agent, goal, perception)
+                self._decide_async(agent, goal, perception, parent_event_id=parent_event_id)
             )
         except RuntimeError:
             # Fallback: new loop if something went wrong
             self._loop = asyncio.new_event_loop()
             return self._loop.run_until_complete(
-                self._decide_async(agent, goal, perception)
+                self._decide_async(agent, goal, perception, parent_event_id=parent_event_id)
             )
 
     async def _decide_async(
@@ -148,7 +191,9 @@ class LLMStrategy(DecisionStrategy):
         agent: "Agent",
         goal: str,
         perception: dict[str, Any],
-    ) -> "Decision":
+        *,
+        parent_event_id: int | None = None,
+    ) -> tuple["Decision", int | None]:
         """The real LLM decision flow."""
         from .agent import Decision
 
@@ -160,7 +205,7 @@ class LLMStrategy(DecisionStrategy):
                 perception,
                 reason=self._llm_disabled_reason,
                 source="llm_disabled",
-            )
+            ), None
 
         agent_ctx = build_agent_context(agent)
         user_prompt = build_user_prompt(agent_ctx, goal, perception)
@@ -174,7 +219,7 @@ class LLMStrategy(DecisionStrategy):
         ).hexdigest()
 
         # Audit: log the request
-        self._log_event(
+        request_event = self._log_event(
             "LLM_REQUEST",
             tick,
             agent.id,
@@ -186,7 +231,9 @@ class LLMStrategy(DecisionStrategy):
                 "settings": request_settings,
                 "messages": messages,
             },
+            parent_event_id=parent_event_id,
         )
+        request_event_id = request_event.event_id if request_event else None
 
         try:
             resp: LLMResponse = await self._client.chat(messages)
@@ -197,6 +244,7 @@ class LLMStrategy(DecisionStrategy):
             self._log_event(
                 "LLM_ERROR", tick, agent.id,
                 {"error": str(exc), "retryable": exc.retryable},
+                parent_event_id=request_event_id,
             )
             return self._fallback_decide(
                 agent,
@@ -204,7 +252,7 @@ class LLMStrategy(DecisionStrategy):
                 perception,
                 reason=str(exc),
                 source="llm_error",
-            )
+            ), None
 
         # Audit: log the response
         log_data: dict[str, Any] = {
@@ -230,6 +278,7 @@ class LLMStrategy(DecisionStrategy):
             self._log_event(
                 "LLM_ERROR", tick, agent.id,
                 {"error": f"Parse failure: {exc}", "raw_content": resp.content[:500]},
+                parent_event_id=request_event_id,
             )
             return self._fallback_decide(
                 agent,
@@ -237,14 +286,16 @@ class LLMStrategy(DecisionStrategy):
                 perception,
                 reason=f"Parse failure: {exc}",
                 source="llm_parse_error",
-            )
+            ), None
 
         log_data["parsed_decision"] = normalized
         if resp.cached:
-            self._log_event("LLM_CACHE_HIT", tick, agent.id, log_data)
+            response_event = self._log_event("LLM_CACHE_HIT", tick, agent.id, log_data, parent_event_id=request_event_id)
         else:
-            self._log_event("LLM_RESPONSE", tick, agent.id, log_data)
+            response_event = self._log_event("LLM_RESPONSE", tick, agent.id, log_data, parent_event_id=request_event_id)
         self._consecutive_failures = 0
+
+        response_event_id = response_event.event_id if response_event else None
 
         return Decision(
             tick=tick,
@@ -261,7 +312,7 @@ class LLMStrategy(DecisionStrategy):
                 "llm_latency_ms": resp.latency_ms,
                 "llm_cached": resp.cached,
             },
-        )
+        ), response_event_id
 
     async def close(self) -> None:
         """Close the underlying HTTP client."""
@@ -286,14 +337,22 @@ class LLMStrategy(DecisionStrategy):
         }
 
     def _log_event(
-        self, event_type_name: str, tick: int, agent_id: str, data: dict[str, Any]
-    ) -> None:
+        self,
+        event_type_name: str,
+        tick: int,
+        agent_id: str,
+        data: dict[str, Any],
+        parent_event_id: int | None = None,
+    ) -> "Event | None":
         """Write to the simulation event log if available."""
         if self._event_log is None:
-            return
-        from agora.simulation.event_log import EventType
+            return None
+        from agora.simulation.event_log import Event, EventType
         et = EventType(event_type_name.lower())
-        self._event_log.record(tick=tick, event_type=et, agent_id=agent_id, data=data)
+        return self._event_log.record(
+            tick=tick, event_type=et, agent_id=agent_id, data=data,
+            parent_event_id=parent_event_id,
+        )
 
     def _normalize_llm_decision(
         self,

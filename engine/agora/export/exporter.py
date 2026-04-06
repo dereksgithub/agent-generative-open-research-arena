@@ -29,18 +29,36 @@ class DatasetExporter:
         decisions: list[Decision],
         event_log: EventLog,
         run_id: str,
+        world_snapshots: list[dict[str, Any]] | None = None,
     ) -> None:
         self.scenario = scenario
         self.agents = agents
         self.decisions = decisions
         self.event_log = event_log
         self.run_id = run_id
+        self.world_snapshots = world_snapshots
 
     def export_all(self, output_dir: Path) -> dict[str, Path]:
-        """Write all export files and return a mapping of name -> path."""
+        """Write all export files and return a mapping of name -> path.
+
+        This is the batch-mode entry point — it writes agent_states, narratives,
+        agent_summary, and kpis. When the runner uses streaming writes for
+        agent_states and narratives, use :meth:`export_summary` instead.
+        """
         paths: dict[str, Path] = {}
         paths["agent_states"] = self._write_agent_states(output_dir / "agent_states.jsonl")
         paths["narratives"] = self._write_narratives(output_dir / "narratives.jsonl")
+        paths["world_state"] = self._write_world_state(output_dir / "world_state.jsonl")
+        paths.update(self.export_summary(output_dir))
+        return paths
+
+    def export_summary(self, output_dir: Path) -> dict[str, Path]:
+        """Write summary-only exports (agent_summary.csv, kpis.json).
+
+        Use this when agent_states.jsonl and narratives.jsonl have already been
+        written incrementally by the runner's per-tick callback.
+        """
+        paths: dict[str, Path] = {}
         paths["agent_summary"] = self._write_agent_summary(output_dir / "agent_summary.csv")
         if self.scenario.kpis:
             paths["kpis"] = self._write_kpis(output_dir / "kpis.json")
@@ -61,6 +79,9 @@ class DatasetExporter:
         decisions_by_key: dict[tuple[int, str], Decision] = {
             (decision.tick, decision.agent_id): decision for decision in self.decisions
         }
+        memory_by_agent: dict[str, list[dict[str, Any]]] = {
+            agent.id: [] for agent in self.agents
+        }
         records: list[dict[str, Any]] = []
 
         for event in self.event_log.events:
@@ -68,6 +89,14 @@ class DatasetExporter:
                 continue
             agent = agent_index[event.agent_id]
             decision = decisions_by_key.get((event.tick, event.agent_id))
+            memory_entry = {
+                "tick": event.tick,
+                "event": self._memory_event_text(
+                    event.data.get("action", ""),
+                    event.data.get("to_location", ""),
+                ),
+            }
+            memory_by_agent[agent.id].append(memory_entry)
             records.append({
                 "run_id": self.run_id,
                 "tick": event.tick,
@@ -78,9 +107,16 @@ class DatasetExporter:
                 "action": event.data.get("action", "unknown"),
                 "mode": decision.metadata.get("mode", "") if decision else "",
                 "traits": agent.traits,
+                "memory_snapshot": list(memory_by_agent[agent.id][-5:]),
             })
 
         return records
+
+    @staticmethod
+    def _memory_event_text(action: str, location: str) -> str:
+        if action == "travel":
+            return f"Traveled to {location}"
+        return f"Stayed at {location}"
 
     # -- narratives ------------------------------------------------------------
 
@@ -102,6 +138,102 @@ class DatasetExporter:
                 }
                 f.write(json.dumps(record) + "\n")
         return path
+
+    # -- world state ----------------------------------------------------------
+
+    def _write_world_state(self, path: Path) -> Path:
+        """Write one serializable world snapshot per tick."""
+        with path.open("w", encoding="utf-8") as f:
+            for record in self._iter_world_state_records():
+                f.write(json.dumps(record) + "\n")
+        return path
+
+    def _iter_world_state_records(self) -> list[dict[str, Any]]:
+        """Yield per-tick world snapshots.
+
+        Prefer exact engine-produced snapshots when available. Fall back to a
+        deterministic reconstruction from the scenario and event log so the
+        batch exporter can still produce `world_state.jsonl`.
+        """
+        if self.world_snapshots is not None:
+            return list(self.world_snapshots)
+
+        occupancy_by_tick: dict[int, dict[str, int]] = {}
+        for event in self.event_log.events:
+            if event.event_type != EventType.TICK_OCCUPANCY:
+                continue
+            tick_occupancy = occupancy_by_tick.setdefault(event.tick, {})
+            tick_occupancy[event.data.get("location_id", "")] = int(
+                event.data.get("occupant_count", 0)
+            )
+
+        records: list[dict[str, Any]] = []
+        for tick in range(self.scenario.simulation.ticks):
+            active_interventions = self._active_interventions_at(tick)
+            route_multiplier_by_mode: dict[str, float] = {}
+            for intervention in active_interventions:
+                if intervention["target_roles"]:
+                    continue
+                for key, value in intervention["effects"].items():
+                    if key.endswith("_cost_multiplier"):
+                        mode = key.removesuffix("_cost_multiplier")
+                        route_multiplier_by_mode[mode] = (
+                            route_multiplier_by_mode.get(mode, 1.0) * float(value)
+                        )
+
+            records.append({
+                "tick": tick,
+                "tick_unit": self.scenario.simulation.tick_unit,
+                "locations": [
+                    {
+                        "id": loc.id,
+                        "name": loc.name,
+                        "type": loc.type,
+                        "occupant_count": occupancy_by_tick.get(tick, {}).get(loc.id, 0),
+                        "capacity": loc.capacity,
+                        "resources": dict(loc.resources),
+                    }
+                    for loc in self.scenario.locations
+                ],
+                "routes": [
+                    {
+                        "from": route.from_location,
+                        "to": route.to_location,
+                        "mode": route.mode,
+                        "base_travel_time": route.travel_time_minutes,
+                        "current_travel_time": (
+                            route.travel_time_minutes
+                            * route_multiplier_by_mode.get(route.mode, 1.0)
+                        ),
+                        "congestion": 0.0,
+                    }
+                    for route in self.scenario.routes
+                ],
+                "active_interventions": active_interventions,
+            })
+        return records
+
+    def _active_interventions_at(self, tick: int) -> list[dict[str, Any]]:
+        active: list[dict[str, Any]] = []
+        for intervention in self.scenario.interventions:
+            if intervention.tick > tick:
+                continue
+            expires_at_tick = (
+                intervention.tick + intervention.duration
+                if intervention.duration is not None
+                else None
+            )
+            if expires_at_tick is not None and tick >= expires_at_tick:
+                continue
+            active.append({
+                "name": intervention.name,
+                "description": intervention.description,
+                "activated_at_tick": intervention.tick,
+                "expires_at_tick": expires_at_tick,
+                "effects": dict(intervention.effects),
+                "target_roles": list(intervention.target_roles),
+            })
+        return active
 
     # -- agent summary ---------------------------------------------------------
 

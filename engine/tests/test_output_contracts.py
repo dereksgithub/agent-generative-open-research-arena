@@ -188,6 +188,33 @@ class TestAgentStatesContract:
         lines = (commute_run / "agent_states.jsonl").read_text().strip().splitlines()
         assert len(lines) == 5 * 24  # 5 agents, 24 ticks
 
+    def test_memory_snapshot_present_and_valid(self, commute_run: Path):
+        for line in (commute_run / "agent_states.jsonl").read_text().splitlines():
+            record = json.loads(line)
+            assert "memory_snapshot" in record
+            snapshot = record["memory_snapshot"]
+            assert isinstance(snapshot, list)
+            for entry in snapshot:
+                assert "tick" in entry and isinstance(entry["tick"], int)
+                assert "event" in entry and isinstance(entry["event"], str)
+
+    def test_memory_window_grows_then_caps_at_five(self, commute_run: Path):
+        records = [
+            json.loads(line)
+            for line in (commute_run / "agent_states.jsonl").read_text().splitlines()
+        ]
+        # Pick one agent and check window size by tick
+        agent_id = records[0]["agent_id"]
+        agent_records = sorted(
+            [r for r in records if r["agent_id"] == agent_id],
+            key=lambda r: r["tick"],
+        )
+        for r in agent_records:
+            expected_len = min(r["tick"] + 1, 5)
+            assert len(r["memory_snapshot"]) == expected_len, (
+                f"tick={r['tick']}: expected {expected_len} memory entries, got {len(r['memory_snapshot'])}"
+            )
+
 
 # -- narratives.jsonl contract -------------------------------------------------
 
@@ -245,6 +272,79 @@ class TestKPIsContract:
         data = json.loads((vaccine_run / "kpis.json").read_text())
         assert "clinic_visits" in data["kpis"]
         assert "parent_count" in data["kpis"]
+
+
+# -- world_state.jsonl contract ------------------------------------------------
+
+class TestWorldStateContract:
+    REQUIRED_FIELDS = {"tick", "tick_unit", "locations", "routes", "active_interventions"}
+
+    def test_file_exists(self, commute_run: Path):
+        assert (commute_run / "world_state.jsonl").exists()
+
+    def test_every_line_is_valid_json(self, commute_run: Path):
+        for line in (commute_run / "world_state.jsonl").read_text().splitlines():
+            json.loads(line)
+
+    def test_required_fields_present(self, commute_run: Path):
+        for line in (commute_run / "world_state.jsonl").read_text().splitlines():
+            record = json.loads(line)
+            assert self.REQUIRED_FIELDS.issubset(record.keys()), (
+                f"Missing fields: {self.REQUIRED_FIELDS - record.keys()}"
+            )
+
+    def test_one_record_per_tick(self, commute_run: Path):
+        lines = (commute_run / "world_state.jsonl").read_text().strip().splitlines()
+        assert len(lines) == 24
+        ticks = [json.loads(line)["tick"] for line in lines]
+        assert ticks == list(range(24))
+
+    def test_location_records_have_required_fields(self, commute_run: Path):
+        first = json.loads(
+            (commute_run / "world_state.jsonl").read_text().splitlines()[0]
+        )
+        for loc in first["locations"]:
+            assert "id" in loc
+            assert "name" in loc
+            assert "type" in loc
+            assert "occupant_count" in loc
+            assert isinstance(loc["occupant_count"], int)
+            assert "capacity" in loc
+
+    def test_route_records_have_required_fields(self, commute_run: Path):
+        first = json.loads(
+            (commute_run / "world_state.jsonl").read_text().splitlines()[0]
+        )
+        for route in first["routes"]:
+            assert "from" in route
+            assert "to" in route
+            assert "mode" in route
+            assert "base_travel_time" in route
+            assert "current_travel_time" in route
+
+    def test_occupant_counts_sum_to_total_agents(self, commute_run: Path):
+        for line in (commute_run / "world_state.jsonl").read_text().splitlines():
+            record = json.loads(line)
+            total = sum(loc["occupant_count"] for loc in record["locations"])
+            assert total == 5, f"Tick {record['tick']}: occupant sum {total} != 5"
+
+    def test_intervention_effects_visible(self, commute_run: Path):
+        """Verify congestion pricing intervention changes travel times."""
+        lines = (commute_run / "world_state.jsonl").read_text().splitlines()
+        pre = json.loads(lines[5])   # tick 5: before intervention
+        post = json.loads(lines[7])  # tick 7: after intervention
+
+        # Find drive routes and compare
+        pre_drive = {(r["from"], r["to"]): r for r in pre["routes"] if r["mode"] == "drive"}
+        post_drive = {(r["from"], r["to"]): r for r in post["routes"] if r["mode"] == "drive"}
+
+        # At least one drive route should have increased travel time
+        any_increased = any(
+            post_drive[key]["current_travel_time"] > pre_drive[key]["base_travel_time"]
+            for key in pre_drive
+            if key in post_drive
+        )
+        assert any_increased, "Expected intervention to increase at least one drive route travel time"
 
 
 # -- cross-file consistency ---------------------------------------------------

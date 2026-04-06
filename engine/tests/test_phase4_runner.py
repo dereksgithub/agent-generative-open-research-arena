@@ -152,6 +152,62 @@ def test_llm_run_falls_back_and_disables_after_consecutive_failures(tmp_path: Pa
     assert EventType.LLM_DISABLED.value in {event["event_type"] for event in events}
 
 
+def test_llm_run_threads_provenance_chain_through_request_and_response(tmp_path: Path):
+    async def fake_chat(_self, messages, **_kwargs):
+        return _fake_llm_response(messages[1]["content"])
+
+    with patch("agora.agents.strategy.LLMClient.chat", new=fake_chat):
+        result = run_scenario(
+            EXAMPLE_PATH,
+            seed=42,
+            output_dir=tmp_path / "out",
+            use_llm=True,
+            llm_provider="openai",
+        )
+
+    events = [
+        json.loads(line)
+        for line in (result.output_dir / "events.jsonl").read_text().splitlines()
+        if line.strip()
+    ]
+    events_by_id = {event["event_id"]: event for event in events}
+
+    first_request = next(event for event in events if event["event_type"] == EventType.LLM_REQUEST.value)
+    agent_id = first_request["agent_id"]
+    tick = first_request["tick"]
+
+    deliberate = next(
+        event for event in events
+        if event["tick"] == tick
+        and event["agent_id"] == agent_id
+        and event["event_type"] == EventType.AGENT_DELIBERATE.value
+    )
+    response = next(
+        event for event in events
+        if event["tick"] == tick
+        and event["agent_id"] == agent_id
+        and event["event_type"] == EventType.LLM_RESPONSE.value
+    )
+    decide = next(
+        event for event in events
+        if event["tick"] == tick
+        and event["agent_id"] == agent_id
+        and event["event_type"] == EventType.AGENT_DECIDE.value
+    )
+    act = next(
+        event for event in events
+        if event["tick"] == tick
+        and event["agent_id"] == agent_id
+        and event["event_type"] == EventType.AGENT_ACT.value
+    )
+
+    assert first_request["parent_event_id"] == deliberate["event_id"]
+    assert response["parent_event_id"] == first_request["event_id"]
+    assert decide["parent_event_id"] == response["event_id"]
+    assert act["parent_event_id"] == decide["event_id"]
+    assert events_by_id[decide["parent_event_id"]]["event_type"] == EventType.LLM_RESPONSE.value
+
+
 def test_cli_invalid_provider_returns_clean_error(tmp_path: Path, capsys):
     exit_code = main(
         [

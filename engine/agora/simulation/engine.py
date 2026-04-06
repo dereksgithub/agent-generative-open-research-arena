@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import logging
 import random
+from collections.abc import Callable
+from typing import Any
 
 from agora.agents.agent import Agent, Decision
 from agora.agents.strategy import DecisionStrategy, HeuristicStrategy
@@ -18,6 +20,8 @@ from .state import (
     SimulationState,
     TickPhase,
 )
+
+TickCallback = Callable[[int, list[Decision]], None]
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +59,7 @@ class SimulationEngine:
         self.state = self._init_state(scenario, seed, run_id)
         self._seed_initial_occupancy()
         self.event_log = EventLog(run_id=self.state.run_id)
+        self.world_snapshots: list[dict[str, Any]] = []
 
         # Index interventions by tick
         self._interventions_by_tick: dict[int, list[PolicyIntervention]] = {}
@@ -67,8 +72,19 @@ class SimulationEngine:
             for i, agent in enumerate(agents):
                 agent.seed(seed + i)
 
-    def run(self) -> list[Decision]:
-        """Execute all ticks and return the full decision trace."""
+    def run(
+        self,
+        on_tick_complete: TickCallback | None = None,
+    ) -> list[Decision]:
+        """Execute all ticks and return the full decision trace.
+
+        Parameters
+        ----------
+        on_tick_complete:
+            Optional callback invoked after each tick with ``(tick, decisions)``.
+            Use this to stream per-tick outputs (decisions, agent states, etc.)
+            to disk incrementally instead of waiting for the full run to finish.
+        """
         all_decisions: list[Decision] = []
 
         self.event_log.record(
@@ -88,6 +104,10 @@ class SimulationEngine:
         for tick in range(self.state.total_ticks):
             tick_decisions = self._step_tick(tick)
             all_decisions.extend(tick_decisions)
+            # Flush events for this tick to disk (no-op in batch mode)
+            self.event_log.flush()
+            if on_tick_complete is not None:
+                on_tick_complete(tick, tick_decisions)
 
         self.event_log.record(
             tick=self.state.tick,
@@ -98,6 +118,8 @@ class SimulationEngine:
                 "total_decisions": len(all_decisions),
             },
         )
+        # Final flush to capture RUN_END
+        self.event_log.flush()
 
         return all_decisions
 
@@ -120,7 +142,7 @@ class SimulationEngine:
             self.state.phase = TickPhase.PERCEIVE
             world_snapshot = self.state.snapshot_for_agent(agent.current_location, agent.role)
             perception = agent.perceive(world_snapshot)
-            self.event_log.record(
+            perceive_event = self.event_log.record(
                 tick=tick,
                 event_type=EventType.AGENT_PERCEIVE,
                 agent_id=agent.id,
@@ -130,17 +152,22 @@ class SimulationEngine:
             # DELIBERATE
             self.state.phase = TickPhase.DELIBERATE
             goal = agent.deliberate(perception)
-            self.event_log.record(
+            deliberate_event = self.event_log.record(
                 tick=tick,
                 event_type=EventType.AGENT_DELIBERATE,
                 agent_id=agent.id,
                 data={"goal": goal},
+                parent_event_id=perceive_event.event_id,
             )
 
             # DECIDE
             self.state.phase = TickPhase.DECIDE
-            decision = self.strategy.decide(agent, goal, perception)
-            self.event_log.record(
+            decision, strategy_event_id = self.strategy.decide_with_provenance(
+                agent, goal, perception,
+                parent_event_id=deliberate_event.event_id,
+            )
+            decide_parent = strategy_event_id if strategy_event_id is not None else deliberate_event.event_id
+            decide_event = self.event_log.record(
                 tick=tick,
                 event_type=EventType.AGENT_DECIDE,
                 agent_id=agent.id,
@@ -150,6 +177,7 @@ class SimulationEngine:
                     "reasoning": decision.reasoning,
                     "metadata": decision.metadata,
                 },
+                parent_event_id=decide_parent,
             )
 
             # ACT
@@ -166,9 +194,28 @@ class SimulationEngine:
                     "from_location": old_location,
                     "to_location": agent.current_location,
                 },
+                parent_event_id=decide_event.event_id,
             )
 
             decisions.append(decision)
+
+        # Occupancy snapshot — one event per occupied location
+        for loc_id, loc in self.state.locations.items():
+            if len(loc.occupant_ids) > 0:
+                self.event_log.record(
+                    tick=tick,
+                    event_type=EventType.TICK_OCCUPANCY,
+                    data={
+                        "location_id": loc_id,
+                        "location_name": loc.name,
+                        "location_type": loc.type,
+                        "occupant_ids": list(loc.occupant_ids),
+                        "occupant_count": len(loc.occupant_ids),
+                    },
+                )
+
+        # Keep per-tick world snapshots available for batch exporters and tests.
+        self.world_snapshots.append(self.state.to_snapshot())
 
         # Phase 6: RECORD
         self.state.phase = TickPhase.RECORD

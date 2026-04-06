@@ -19,6 +19,7 @@ from agora.scenarios.loader import load_scenario
 from agora.scenarios.schema import ScenarioSpec
 
 from .engine import SimulationEngine
+from .event_log import EventLog
 
 logger = logging.getLogger(__name__)
 
@@ -104,8 +105,13 @@ def run_scenario(
         strategy = HeuristicStrategy()
         logger.info("Using heuristic strategy (no LLM calls)")
 
-    # 6. Run simulation
+    # 6. Build engine with streaming event log
     engine = SimulationEngine(scenario, agents, seed=effective_seed, strategy=strategy)
+    # Switch event log to streaming mode: write events.jsonl incrementally
+    engine.event_log = EventLog(
+        run_id=engine.state.run_id,
+        output_path=out / "events.jsonl",
+    )
 
     # Attach event log to LLM strategy for audit logging
     if isinstance(strategy, LLMStrategy):
@@ -118,10 +124,73 @@ def run_scenario(
         scenario.simulation.ticks,
         engine.state.run_id,
     )
-    decisions = engine.run()
 
-    # 7. Write outputs
-    _write_decisions_jsonl(out / "decisions.jsonl", decisions)
+    # 7. Run simulation with streaming per-tick writes
+    agent_index = {agent.id: agent for agent in agents}
+    decisions_fh = (out / "decisions.jsonl").open("w", encoding="utf-8")
+    agent_states_fh = (out / "agent_states.jsonl").open("w", encoding="utf-8")
+    narratives_fh = (out / "narratives.jsonl").open("w", encoding="utf-8")
+    world_state_fh = (out / "world_state.jsonl").open("w", encoding="utf-8")
+
+    try:
+        def _on_tick_complete(tick: int, tick_decisions: list[Decision]) -> None:
+            for d in tick_decisions:
+                # decisions.jsonl
+                decisions_fh.write(json.dumps({
+                    "tick": d.tick,
+                    "agent_id": d.agent_id,
+                    "action": d.action,
+                    "target": d.target,
+                    "reasoning": d.reasoning,
+                    "metadata": d.metadata,
+                }) + "\n")
+                # agent_states.jsonl
+                agent = agent_index[d.agent_id]
+                agent_states_fh.write(json.dumps({
+                    "run_id": engine.state.run_id,
+                    "tick": d.tick,
+                    "agent_id": agent.id,
+                    "agent_name": agent.name,
+                    "role": agent.role,
+                    "location": agent.current_location,
+                    "action": d.action,
+                    "mode": d.metadata.get("mode", ""),
+                    "traits": agent.traits,
+                    "memory_snapshot": [
+                        {"tick": m.tick, "event": m.event}
+                        for m in agent.memory[-5:]
+                    ],
+                }) + "\n")
+                # narratives.jsonl
+                if d.reasoning:
+                    narratives_fh.write(json.dumps({
+                        "run_id": engine.state.run_id,
+                        "tick": d.tick,
+                        "agent_id": d.agent_id,
+                        "action": d.action,
+                        "target": d.target,
+                        "reasoning": d.reasoning,
+                        "mode": d.metadata.get("mode", ""),
+                        "metadata": d.metadata,
+                    }) + "\n")
+            # World state snapshot (one record per tick)
+            world_state_fh.write(json.dumps(engine.world_snapshots[-1]) + "\n")
+
+            # Flush per-tick for crash safety
+            decisions_fh.flush()
+            agent_states_fh.flush()
+            narratives_fh.flush()
+            world_state_fh.flush()
+
+        decisions = engine.run(on_tick_complete=_on_tick_complete)
+    finally:
+        decisions_fh.close()
+        agent_states_fh.close()
+        narratives_fh.close()
+        world_state_fh.close()
+        engine.event_log.close()
+
+    # 8. Write summary outputs (small, need full run data — end-of-run is fine)
     _write_aggregate_csv(out / "aggregate.csv", decisions, scenario)
 
     # Collect LLM accounting if applicable
@@ -144,13 +213,19 @@ def run_scenario(
         llm_settings=llm_settings,
         llm_status=llm_status,
     )
-    engine.event_log.write_jsonl(out / "events.jsonl")
 
-    # 8. Dataset exports
-    exporter = DatasetExporter(scenario, agents, decisions, engine.event_log, engine.state.run_id)
-    exporter.export_all(out)
+    # 9. Dataset exports (agent_summary.csv, kpis.json — need full run data)
+    exporter = DatasetExporter(
+        scenario,
+        agents,
+        decisions,
+        engine.event_log,
+        engine.state.run_id,
+        world_snapshots=engine.world_snapshots,
+    )
+    exporter.export_summary(out)
 
-    # 9. Close LLM client
+    # 10. Close LLM client
     if isinstance(strategy, LLMStrategy):
         try:
             if strategy._loop and not strategy._loop.is_closed():
@@ -230,20 +305,6 @@ def _write_config_snapshot(
         "agora_version": __version__,
     }
     (out / "config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
-
-
-def _write_decisions_jsonl(path: Path, decisions: list[Decision]) -> None:
-    with path.open("w", encoding="utf-8") as f:
-        for d in decisions:
-            record = {
-                "tick": d.tick,
-                "agent_id": d.agent_id,
-                "action": d.action,
-                "target": d.target,
-                "reasoning": d.reasoning,
-                "metadata": d.metadata,
-            }
-            f.write(json.dumps(record) + "\n")
 
 
 def _write_aggregate_csv(

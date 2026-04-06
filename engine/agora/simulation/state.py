@@ -101,6 +101,46 @@ class SimulationState:
     def get_location(self, location_id: str) -> LocationState | None:
         return self.locations.get(location_id)
 
+    def to_snapshot(self) -> dict[str, Any]:
+        """Return a serializable snapshot of the full world state at this tick."""
+        return {
+            "tick": self.tick,
+            "tick_unit": self.tick_unit,
+            "locations": [
+                {
+                    "id": loc.id,
+                    "name": loc.name,
+                    "type": loc.type,
+                    "occupant_count": len(loc.occupant_ids),
+                    "capacity": loc.capacity,
+                    "resources": dict(loc.resources),
+                }
+                for loc in self.locations.values()
+            ],
+            "routes": [
+                {
+                    "from": r.from_location,
+                    "to": r.to_location,
+                    "mode": r.mode,
+                    "base_travel_time": r.base_travel_time,
+                    "current_travel_time": r.current_travel_time,
+                    "congestion": r.congestion,
+                }
+                for r in self.routes
+            ],
+            "active_interventions": [
+                {
+                    "name": iv.name,
+                    "description": iv.description,
+                    "activated_at_tick": iv.activated_at_tick,
+                    "expires_at_tick": iv.expires_at_tick,
+                    "effects": iv.effects,
+                    "target_roles": iv.target_roles,
+                }
+                for iv in self.active_interventions
+            ],
+        }
+
     def snapshot_for_agent(self, agent_location: str, agent_role: str = "") -> dict[str, Any]:
         """Build the world-view dict that agents receive during perceive().
 

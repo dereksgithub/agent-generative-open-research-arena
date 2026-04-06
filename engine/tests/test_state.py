@@ -62,6 +62,35 @@ def test_snapshot_for_agent():
     assert snap["current_location_resources"]["parking_spaces"] == 10
 
 
+def test_to_snapshot_serializes_world_state():
+    s = SimulationState(
+        tick=5,
+        tick_unit="hour",
+        locations={
+            "home": LocationState(
+                "home",
+                "Home",
+                "residential",
+                10,
+                0,
+                0,
+                occupant_ids=["alice", "bob"],
+                resources={"parking_spaces": 8},
+            ),
+        },
+        routes=[
+            RouteState("home", "office", "drive", 15, 22.5),
+        ],
+    )
+    snap = s.to_snapshot()
+    assert snap["tick"] == 5
+    assert snap["tick_unit"] == "hour"
+    assert snap["locations"][0]["occupant_count"] == 2
+    assert snap["locations"][0]["resources"]["parking_spaces"] == 8
+    assert snap["routes"][0]["base_travel_time"] == 15
+    assert snap["routes"][0]["current_travel_time"] == 22.5
+
+
 def test_get_location():
     s = SimulationState(locations={
         "a": LocationState("a", "Place A", "residential", None, 0, 0),

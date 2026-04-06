@@ -4,7 +4,12 @@ import csv
 import json
 from pathlib import Path
 
+from agora.agents.strategy import HeuristicStrategy
+from agora.export.exporter import DatasetExporter
+from agora.scenarios.loader import load_scenario
+from agora.simulation.engine import SimulationEngine
 from agora.simulation.runner import run_scenario
+from agora.simulation.runner import _build_agents
 
 COMMUTE_PATH = Path(__file__).resolve().parents[2] / "scenarios" / "examples" / "morning_commute.yaml"
 VACCINE_PATH = Path(__file__).resolve().parents[2] / "scenarios" / "examples" / "vaccine_uptake.yaml"
@@ -124,3 +129,48 @@ def test_enriched_persona_fields_in_config(tmp_path: Path):
     assert alice["household_size"] == 3
     assert "backstory" in alice
     assert len(alice["values"]) > 0
+
+
+def test_export_all_batch_mode_writes_world_state_and_historical_memory(tmp_path: Path):
+    scenario = load_scenario(COMMUTE_PATH)
+    agents = _build_agents(scenario)
+    engine = SimulationEngine(
+        scenario,
+        agents,
+        seed=42,
+        strategy=HeuristicStrategy(),
+    )
+    decisions = engine.run()
+
+    exporter = DatasetExporter(
+        scenario,
+        agents,
+        decisions,
+        engine.event_log,
+        engine.state.run_id,
+    )
+    out = tmp_path / "batch_out"
+    out.mkdir()
+    paths = exporter.export_all(out)
+
+    assert paths["world_state"].exists()
+    world_state = [
+        json.loads(line)
+        for line in (out / "world_state.jsonl").read_text().splitlines()
+    ]
+    assert len(world_state) == scenario.simulation.ticks
+    assert world_state[0]["tick"] == 0
+    assert world_state[-1]["tick"] == scenario.simulation.ticks - 1
+
+    alice_states = []
+    for line in (out / "agent_states.jsonl").read_text().splitlines():
+        record = json.loads(line)
+        if record["agent_id"] == "alice":
+            alice_states.append(record)
+    alice_states.sort(key=lambda record: record["tick"])
+
+    assert len(alice_states[0]["memory_snapshot"]) == 1
+    assert alice_states[0]["memory_snapshot"][-1]["tick"] == 0
+    assert len(alice_states[4]["memory_snapshot"]) == 5
+    assert alice_states[4]["memory_snapshot"][-1]["tick"] == 4
+    assert alice_states[10]["memory_snapshot"][-1]["tick"] == 10
