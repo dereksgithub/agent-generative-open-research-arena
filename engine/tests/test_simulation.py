@@ -112,7 +112,6 @@ def test_provenance_chain_integrity(tmp_path: Path):
 
     events_text = (result.output_dir / "events.jsonl").read_text().strip()
     all_events = [json.loads(line) for line in events_text.split("\n")]
-    events_by_id = {e["event_id"]: e for e in all_events}
 
     # Group agent lifecycle events by (tick, agent_id)
     from collections import defaultdict

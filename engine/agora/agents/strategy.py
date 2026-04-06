@@ -28,7 +28,7 @@ from agora.cognition.prompt import (
 from agora.llm.client import LLMClient, LLMError, LLMResponse
 
 if TYPE_CHECKING:
-    from agora.simulation.event_log import EventLog
+    from agora.simulation.event_log import Event, EventLog
 
     from .agent import Agent, Decision
 
@@ -347,7 +347,7 @@ class LLMStrategy(DecisionStrategy):
         """Write to the simulation event log if available."""
         if self._event_log is None:
             return None
-        from agora.simulation.event_log import Event, EventType
+        from agora.simulation.event_log import EventType
         et = EventType(event_type_name.lower())
         return self._event_log.record(
             tick=tick, event_type=et, agent_id=agent_id, data=data,
