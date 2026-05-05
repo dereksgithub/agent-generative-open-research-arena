@@ -8,8 +8,8 @@
 ## Install from source
 
 ```bash
-git clone https://github.com/dereksgithub/agent-generative-open-research-arena.git
-cd agent-generative-open-research-arena
+git clone https://github.com/agora-sim/agora.git
+cd agora
 ```
 
 ### With uv (recommended)

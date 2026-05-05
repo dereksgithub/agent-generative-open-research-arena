@@ -41,7 +41,7 @@ AGORA is in **early development**. What works today:
 - Hosted demo
 - MATSim import
 - Multiplayer interaction
-- Pre-built scenario packs beyond the single example
+- Broader pre-built scenario packs beyond the two included examples
 
 ## Quickstart
 
@@ -153,7 +153,7 @@ agora viz                    # Launch the dashboard viewer
 
 ## Vision
 
-AGORA aims to become a general-purpose socio-spatial simulation engine where LLM-powered agents exhibit bounded rationality, respond to narrative policy framing, and produce auditable decision traces suitable for publishable research. See [plans/](plans/) for the production roadmap.
+AGORA aims to become a general-purpose socio-spatial simulation engine where LLM-powered agents exhibit bounded rationality, respond to narrative policy framing, and produce auditable decision traces suitable for publishable research. A public roadmap will be published once the first alpha release identity is finalized.
 
 Target domains include transport and mobility, urban planning, public health, energy systems, and computational social science.
 

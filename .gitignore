@@ -214,6 +214,7 @@ viz/dist/
 # plans and harness
 plans/*
 harness/*
+.codex
 
 # simulation run outputs
 runs/

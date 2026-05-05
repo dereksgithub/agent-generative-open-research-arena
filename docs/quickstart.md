@@ -7,9 +7,6 @@ This guide walks you through running your first AGORA simulation in under five m
 ```bash
 # Activate the project virtual environment
 source .venv/bin/activate
-
-# Install spatial viewer dependencies (one-time)
-cd viz/spatial && npm install && cd ../..
 ```
 
 ## 1. Run the example scenario (heuristic — no API key)
@@ -31,6 +28,7 @@ runs/morning_commute/<timestamp>/
 ├── scenario.yaml        # Copy of the input scenario
 ├── config.json          # Resolved config (scenario + seed + version)
 ├── decisions.jsonl      # One decision per agent per tick
+├── world_state.jsonl    # Per-tick world snapshots
 ├── aggregate.csv        # Per-tick summary statistics
 ├── events.jsonl         # Full structured event log
 ├── metadata.json        # Run metadata (seed, run_id, counts)
@@ -79,14 +77,27 @@ Opens a browser-based run viewer for timelines, agent states, decision traces, a
 The spatial viewer renders runs as an animated top-down city map with agent sprites, route lines, speech bubbles, and intervention overlays.
 
 ```bash
-# Terminal 1 — start the viz server (serves run data via API)
-agora viz --no-browser
-
-# Terminal 2 — start the spatial viewer dev server
-cd viz/spatial && npm run dev
+agora viz --mode spatial
 ```
 
-Open `http://localhost:5174` — it will auto-detect the latest run. Controls:
+The command opens the supported spatial viewer workflow. When running from a
+source checkout, AGORA serves the built frontend from `viz/spatial/dist`; if the
+build is missing, install Node dependencies once and rebuild:
+
+```bash
+cd viz/spatial
+npm ci
+npm run build
+cd ../..
+```
+
+Then rerun:
+
+```bash
+agora viz --mode spatial
+```
+
+Controls:
 
 | Key | Action |
 |-----|--------|
@@ -96,6 +107,8 @@ Open `http://localhost:5174` — it will auto-detect the latest run. Controls:
 | Drag | Pan |
 | Click agent | Show speech bubble (decision reasoning) |
 | R | Reset camera |
+
+For frontend development only, use `cd viz/spatial && npm run dev`.
 
 ## 5. Create agents from persona files
 

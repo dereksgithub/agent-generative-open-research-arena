@@ -108,8 +108,8 @@ For long-term reproducibility, pin AGORA to a specific git commit or release tag
 Example:
 
 ```bash
-git clone https://github.com/dereksgithub/agent-generative-open-research-arena.git
-cd agent-generative-open-research-arena
+git clone https://github.com/agora-sim/agora.git
+cd agora
 git checkout <commit-or-tag>
 uv pip install -e ".[dev]"
 ```
